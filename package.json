@@ -1,0 +1,22 @@
+{
+    "name": "blueforest-theme",
+    "displayName": "blueforest-theme",
+    "description": "",
+    "version": "0.0.1",
+    "publisher": "alonsodomin",
+    "engines": {
+        "vscode": "^1.12.0"
+    },
+    "categories": [
+        "Themes"
+    ],
+    "contributes": {
+        "themes": [
+            {
+                "label": "Blueforest",
+                "uiTheme": "vs-dark",
+                "path": "./themes/Blueforest-color-theme.json"
+            }
+        ]
+    }
+}
