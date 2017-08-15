@@ -1,20 +1,14 @@
 {
-	"name": "Blueforest",
+	"name": "BlueForest",
   "colors": {
-		"editorBackground": "#141F2E",
-		"editorForeground": "#F5F5F5",
-
-		"tabsContainerBackground": "#1c1c2a",
-		"inactiveTabBackground": "#10192c",
-		"activityBarBackground": "#051336"
+		"editor.background": "#0f1318",
+		"editor.foreground": "#F5F5F5",
+		"sideBar.background": "#0f1318",
+		"tab.activeBackground": "#0f1318",
+		"tab.inactiveBackground": "#10192c",
+		"activityBarBadge.background": "#9D550FB0"
 	},
 	"tokenColors": [
-		{
-			"settings": {
-				"background": "#141F2E",
-				"foreground": "#F5F5F5"
-			}
-		},
 		{
 			"name": "Comments",
 			"scope": "comment",

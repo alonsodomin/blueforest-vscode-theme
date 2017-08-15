@@ -1,7 +1,7 @@
 {
     "name": "blueforest-theme",
-    "displayName": "blueforest-theme",
-    "description": "",
+    "displayName": "Blueforest Theme",
+    "description": "A dark, high contrast, blue theme",
     "version": "0.0.1",
     "publisher": "alonsodomin",
     "engines": {
@@ -13,7 +13,7 @@
     "contributes": {
         "themes": [
             {
-                "label": "Blueforest",
+                "label": "BlueForest",
                 "uiTheme": "vs-dark",
                 "path": "./themes/Blueforest-color-theme.json"
             }
