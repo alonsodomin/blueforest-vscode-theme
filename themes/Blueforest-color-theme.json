@@ -1,10 +1,10 @@
 {
 	"name": "BlueForest",
   "colors": {
-		"editor.background": "#0f1318",
-		"editor.foreground": "#F5F5F5",
+		"editor.background": "#141F2E",
+		"editor.foreground": "#D0D0D0",
 		"sideBar.background": "#0f1318",
-		"tab.activeBackground": "#0f1318",
+		"tab.activeBackground": "#141F2E",
 		"tab.inactiveBackground": "#10192c",
 		"activityBarBadge.background": "#9D550FB0"
 	},
@@ -31,49 +31,62 @@
 			}
 		},
 		{
-			"name": "Built-in constants",
-			"scope": "constant.language",
-			"settings": {
-				"foreground": "#F7FF66"
-			}
-		},
-		{
-			"name": "User-defined constants",
-			"scope": [
-				"constant.character",
-				"constant.other"
-			],
-			"settings": {
-				"foreground": "#F7FF66"
-			}
-		},
-		{
-			"name": "Variables",
-			"scope": "variable",
-			"settings": {
-				"foreground": "#F7FF66",
-				"fontStyle": "bold"
-			}
-		},
-		{
 			"name": "Keywords",
-			"scope": "keyword",
+			"scope": [
+				"keyword",
+				"constant.language"
+			],
 			"settings": {
 				"foreground": "#0099FF",
 				"fontStyle": "bold"
 			}
 		},
 		{
-			"name": "Storage",
-			"scope": "storage",
+			"name": "Identifiers",
+			"scope": [
+				"entity.name",
+				"variable"
+			],
 			"settings": {
-				"fontStyle": "",
-				"foreground": "#225588"
+				"foreground": "#F7FF66",
+				"fontStyle": "bold"
 			}
 		},
 		{
-			"name": "Storage types",
-			"scope": "storage.type",
+			"name": "Function arguments",
+			"scope": "variable.parameter",
+			"settings": {
+				"foreground": "#F7FF66"
+			}
+		},
+		{
+			"name": "Type declarations and references",
+			"scope": [
+				//"meta.return-type",
+				"support.class",
+				"support.type",
+				"entity.name.type",
+				"entity.name.class",
+				"storage",
+				"storage.type.cs",
+				"storage.type.generic.cs",
+				"storage.type.modifier.cs",
+				"storage.type.variable.cs",
+				"storage.type.annotation.java",
+				"storage.type.generic.java",
+				"storage.type.java",
+				"storage.type.object.array.java",
+				"storage.type.primitive.array.java",
+				"storage.type.primitive.java",
+				"storage.type.token.java",
+				"storage.type.groovy",
+				"storage.type.annotation.groovy",
+				"storage.type.parameters.groovy",
+				"storage.type.generic.groovy",
+				"storage.type.object.array.groovy",
+				"storage.type.primitive.array.groovy",
+				"storage.type.primitive.groovy"
+			],
 			"settings": {
 				"foreground": "#FFCC33"
 			}
@@ -81,11 +94,22 @@
 		{
 			"name": "Class names",
 			"scope": [
-				"entity.name.class",
-				"entity.name.type"
+				"support.class",
+				"entity.name.class"
 			],
 			"settings": {
-				"foreground": "#91CCFF"
+				"foreground": "#91CCFF",
+				"fontStyle": ""
+			}
+		},
+		{
+			"name": "Constants",
+			"scope": [
+				"constant.character",
+				"constant.other"
+			],
+			"settings": {
+				"foreground": "#F7FF66"
 			}
 		},
 		{
@@ -101,13 +125,6 @@
 			"scope": "entity.name.function",
 			"settings": {
 				"fontStyle": ""
-			}
-		},
-		{
-			"name": "Function arguments",
-			"scope": "variable.parameter",
-			"settings": {
-				"foreground": "#F7FF66"
 			}
 		},
 		{
@@ -143,21 +160,11 @@
 			}
 		},
 		{
-			"name": "Library classes/types",
-			"scope": [
-				"support.type",
-				"support.class"
-			],
-			"settings": {
-				"fontStyle": "italic",
-				"foreground": "#9966b8"
-			}
-		},
-		{
 			"name": "Invalid",
 			"scope": "invalid",
 			"settings": {
-				"foreground": "#F8F8F0"
+				"background": "#F05050",
+				"fontStyle": "bold"
 			}
 		},
 		{
@@ -221,6 +228,16 @@
 			"scope": "markup.heading.setext",
 			"settings": {
 				"foreground": "#ddbb88"
+			}
+		},
+		{
+			"name": "JSON String",
+			"scope": [
+				"meta.structure.dictionary.json",
+				"string.quoted.double.json"
+			],
+			"settings": {
+				"foreground": "#FFFAB1"
 			}
 		}
 	]
