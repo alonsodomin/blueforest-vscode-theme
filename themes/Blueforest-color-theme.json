@@ -34,7 +34,8 @@
 			"name": "Keywords",
 			"scope": [
 				"keyword",
-				"constant.language"
+				"constant.language",
+				"storage.modifier"
 			],
 			"settings": {
 				"foreground": "#0099FF",
@@ -42,13 +43,32 @@
 			}
 		},
 		{
+			"name": "Operators",
+			"scope": [
+				"keyword.operator"
+			],
+			"settings": {
+				"foreground": "#D0D0D0",
+				"fontStyle": ""
+			}
+		},
+		{
 			"name": "Identifiers",
 			"scope": [
-				"entity.name",
-				"variable"
+				"variable.name"
 			],
 			"settings": {
 				"foreground": "#F7FF66",
+				"fontStyle": "bold"
+			}
+		},
+		{
+			"name": "Reserved Identifiers",
+			"scope": [
+				"variable.language"
+			],
+			"settings": {
+				"foreground": "#91CCFF",
 				"fontStyle": "bold"
 			}
 		},
@@ -63,10 +83,8 @@
 			"name": "Type declarations and references",
 			"scope": [
 				//"meta.return-type",
-				"support.class",
 				"support.type",
 				"entity.name.type",
-				"entity.name.class",
 				"storage",
 				"storage.type.cs",
 				"storage.type.generic.cs",
@@ -88,7 +106,17 @@
 				"storage.type.primitive.groovy"
 			],
 			"settings": {
-				"foreground": "#FFCC33"
+				"foreground": "#FFCC33",
+				"fontStyle": ""
+			}
+		},
+		{
+			"scope": [
+				"storage.modifier.other"
+			],
+			"settings": {
+				"foreground": "#FFCC33",
+				"fontStyle": "bold"
 			}
 		},
 		{
