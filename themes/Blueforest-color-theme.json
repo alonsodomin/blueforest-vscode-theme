@@ -20,6 +20,7 @@
 			"name": "Strings",
 			"scope": "string",
 			"settings": {
+				"fontStyle": "bold",
 				"foreground": "#A0FFA0"
 			}
 		},
@@ -115,7 +116,7 @@
 				"storage.modifier.other"
 			],
 			"settings": {
-				"foreground": "#FFCC33",
+				"foreground": "#0099FF",
 				"fontStyle": "bold"
 			}
 		},
@@ -160,7 +161,7 @@
 			"scope": "entity.name.tag",
 			"settings": {
 				"fontStyle": "",
-				"foreground": "#225588"
+				"foreground": "#FFCC33"
 			}
 		},
 		{

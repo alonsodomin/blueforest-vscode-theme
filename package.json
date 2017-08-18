@@ -13,7 +13,7 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://alonsodomin.visualstudio.com/blueforest-theme"
+        "url": "https://github.com/alonsodomin/blueforest-vscode-theme"
     },
     "contributes": {
         "themes": [
