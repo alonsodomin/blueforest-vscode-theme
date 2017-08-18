@@ -38,6 +38,7 @@
 				"constant.language",
 				"storage.modifier",
 				"storage.type.function",
+				"storage.type.class",
 				"keyword.control",
 				"keyword.operator.word",
 				"keyword.other"
@@ -47,16 +48,15 @@
 				"fontStyle": "bold"
 			}
 		},
-		// {
-		// 	"name": "Operators",
-		// 	"scope": [
-		// 		"keyword.operator"
-		// 	],
-		// 	"settings": {
-		// 		"foreground": "#D0D0D0",
-		// 		"fontStyle": ""
-		// 	}
-		// },
+		{
+			"scope": [
+				"punctuation.definition.keyword"
+			],
+			"settings": {
+				"fontStyle": "bold",
+				"foreground": "#FFCC33"
+			}
+		},
 		{
 			"name": "Identifiers",
 			"scope": [
@@ -233,6 +233,26 @@
 			}
 		},
 		{
+			"name": "Markup Header",
+			"scope": [
+				"markup.heading"
+			],
+			"settings": {
+				"fontStyle": "bold",
+				"foreground": "#0099FF"
+			}
+		},
+		{
+			"name": "Markup Lists",
+			"scope": [
+				"markup.underline.link"
+			],
+			"settings": {
+				"fontStyle": "underline",
+				"foreground": "#91CCFF"
+			}
+		},
+		{
 			"name": "Markup Quote",
 			"scope": "markup.quote",
 			"settings": {
@@ -240,20 +260,33 @@
 			}
 		},
 		{
-			"name": "Markup Styling",
+			"name": "Markup Strong",
 			"scope": [
-				"markup.bold",
+				"markup.bold"
+			],
+			"settings": {
+				"fontStyle": "bold",
+				"foreground": "#F7FF66"
+			}
+		},
+		{
+			"name": "Markup Italic",
+			"scope": [
 				"markup.italic"
 			],
 			"settings": {
-				"foreground": "#22aa44"
+				"fontStyle": "italic",
+				"foreground": "#F7FF66"
 			}
 		},
 		{
 			"name": "Markup Inline",
-			"scope": "markup.inline.raw",
+			"scope": [
+				"markup.raw",
+				"markup.inline.raw"
+			],
 			"settings": {
-				"foreground": "#9966b8"
+				"foreground": "#FFCC33"
 			}
 		},
 		{
