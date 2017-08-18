@@ -2,7 +2,7 @@
     "name": "blueforest-theme",
     "displayName": "BlueForest Theme",
     "description": "A dark, high contrast, blue theme",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "publisher": "alonsodomin",
     "icon": "icon.png",
     "engines": {
