@@ -36,23 +36,27 @@
 			"scope": [
 				"keyword",
 				"constant.language",
-				"storage.modifier"
+				"storage.modifier",
+				"storage.type.function",
+				"keyword.control",
+				"keyword.operator.word",
+				"keyword.other"
 			],
 			"settings": {
 				"foreground": "#0099FF",
 				"fontStyle": "bold"
 			}
 		},
-		{
-			"name": "Operators",
-			"scope": [
-				"keyword.operator"
-			],
-			"settings": {
-				"foreground": "#D0D0D0",
-				"fontStyle": ""
-			}
-		},
+		// {
+		// 	"name": "Operators",
+		// 	"scope": [
+		// 		"keyword.operator"
+		// 	],
+		// 	"settings": {
+		// 		"foreground": "#D0D0D0",
+		// 		"fontStyle": ""
+		// 	}
+		// },
 		{
 			"name": "Identifiers",
 			"scope": [
@@ -176,8 +180,8 @@
 			"name": "Library functions",
 			"scope": "support.function",
 			"settings": {
-				"fontStyle": "",
-				"foreground": "#9966b8"
+				"fontStyle": "italic",
+				"foreground": "#FFCC33"
 			}
 		},
 		{
@@ -185,7 +189,7 @@
 			"scope": "support.constant",
 			"settings": {
 				"fontStyle": "",
-				"foreground": "#9966b8"
+				"foreground": "#FFCC33"
 			}
 		},
 		{
@@ -266,6 +270,7 @@
 				"string.quoted.double.json"
 			],
 			"settings": {
+				"fontStyle": "",
 				"foreground": "#FFFAB1"
 			}
 		}
