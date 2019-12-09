@@ -1,9 +1,28 @@
 {
 	"name": "BlueForest",
   "colors": {
+		"titleBar.activeBackground": "#1b2b40",
+	
+		"activityBar.background": "#1b2b40",
+		//"activityBar.foreground": "#ffcc33",
+	
+		"list.activeSelectionBackground": "#273e5c",
+		"list.inactiveSelectionBackground": "#1b2b40",
+		"list.hoverBackground": "#375780",
+		"tree.indentGuidesStroke": "#0099FF",
+	
+		"menu.background": "#141F2E",
+		"input.background": "#1c2d42",
+		"dropdown.background": "#1c2d42",
+		"focusBorder": "#ffcc33",
+	
+		"sideBar.background": "#141F2E",
+		"sideBarSectionHeader.background": "#1c2d42",
+		"sideBar.border": "#333333",
+	
 		"editor.background": "#141F2E",
 		"editor.foreground": "#D0D0D0",
-		"sideBar.background": "#141F2E",
+		"editorGroupHeader.tabsBackground": "#1b2b40",
 		"tab.activeBackground": "#141F2E",
 		"tab.inactiveBackground": "#0A101D",
 		"activityBarBadge.background": "#0099FF"
