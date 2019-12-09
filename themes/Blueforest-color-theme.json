@@ -25,7 +25,12 @@
 		"editorGroupHeader.tabsBackground": "#1b2b40",
 		"tab.activeBackground": "#141F2E",
 		"tab.inactiveBackground": "#0A101D",
-		"activityBarBadge.background": "#0099FF"
+		"activityBarBadge.background": "#0099FF",
+
+		"statusBar.background": "#1e5c1e",
+		"statusBar.noFolderBackground": "#273e5c",
+		"statusBar.debuggingBackground": "#c57633",
+		"statusBarItem.remoteBackground": "#800000"
 	},
 	"tokenColors": [
 		{
