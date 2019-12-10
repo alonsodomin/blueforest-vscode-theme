@@ -4,7 +4,6 @@
 		"titleBar.activeBackground": "#1b2b40",
 	
 		"activityBar.background": "#1b2b40",
-		//"activityBar.foreground": "#ffcc33",
 	
 		"list.activeSelectionBackground": "#273e5c",
 		"list.inactiveSelectionBackground": "#1b2b40",
@@ -126,7 +125,6 @@
 		{
 			"name": "Type declarations and references",
 			"scope": [
-				//"meta.return-type",
 				"support.type",
 				"entity.name.type",
 				"storage",
