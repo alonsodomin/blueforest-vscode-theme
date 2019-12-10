@@ -10,3 +10,8 @@ optimised for syntax higlighting the following languages:
  * Markdown
  * Python
  * Scala
+ * C / C++
+ * Bash
+ * Powershell
+ * JSON
+ * XML / Html
