@@ -5,3 +5,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 - Initial release
+
+## [2019-12-10]
+
+- Enhanced Theme to work with latest Visual Studio Code versions
+- Improved Syntax Highlighting for more languages
