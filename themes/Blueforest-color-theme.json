@@ -37,7 +37,8 @@
 			"name": "Comments",
 			"scope": "comment",
 			"settings": {
-				"foreground": "#50F050"
+				"foreground": "#a0ffa0",
+				"fontStyle": "italic"
 			}
 		},
 		{
@@ -45,7 +46,7 @@
 			"scope": "string",
 			"settings": {
 				"fontStyle": "bold",
-				"foreground": "#A0FFA0"
+				"foreground": "#80ff80"
 			}
 		},
 		{
@@ -53,6 +54,16 @@
 			"scope": "constant.numeric",
 			"settings": {
 				"foreground": "#FF8080"
+			}
+		},
+		{
+			"name": "Operators",
+			"scope": [
+				"keyword.operator",
+			],
+			"settings": {
+				"foreground": "#ffcc33",
+				"fontStyle": ""
 			}
 		},
 		{
@@ -65,7 +76,10 @@
 				"storage.type.class",
 				"keyword.control",
 				"keyword.operator.word",
-				"keyword.other"
+				"keyword.other",
+				"punctuation.definition.arguments.shell",
+				"punctuation.definition.logical-expression.shell",
+				"support.function.powershell"
 			],
 			"settings": {
 				"foreground": "#0099FF",
@@ -84,7 +98,8 @@
 		{
 			"name": "Identifiers",
 			"scope": [
-				"variable.name"
+				"variable.name",
+				"variable.other.normal.shell"
 			],
 			"settings": {
 				"foreground": "#F7FF66",
@@ -105,7 +120,7 @@
 			"name": "Function arguments",
 			"scope": "variable.parameter",
 			"settings": {
-				"foreground": "#F7FF66"
+				"foreground": "#e7e7e7"
 			}
 		},
 		{
@@ -135,7 +150,7 @@
 				"storage.type.primitive.groovy"
 			],
 			"settings": {
-				"foreground": "#FFCC33",
+				"foreground": "#808000",
 				"fontStyle": ""
 			}
 		},
@@ -170,18 +185,11 @@
 			}
 		},
 		{
-			"name": "Inherited class",
-			"scope": "entity.other.inherited-class",
-			"settings": {
-				"fontStyle": "italic",
-				"foreground": "#FFCC33"
-			}
-		},
-		{
 			"name": "Function names",
 			"scope": "entity.name.function",
 			"settings": {
-				"fontStyle": ""
+				"fontStyle": "",
+				"foreground": "#a2cff5"
 			}
 		},
 		{
@@ -189,7 +197,7 @@
 			"scope": "entity.name.tag",
 			"settings": {
 				"fontStyle": "",
-				"foreground": "#FFCC33"
+				"foreground": "#91ccff"
 			}
 		},
 		{
@@ -197,7 +205,7 @@
 			"scope": "entity.other.attribute-name",
 			"settings": {
 				"fontStyle": "",
-				"foreground": "#ddbb88"
+				"foreground": "#fffab1"
 			}
 		},
 		{
@@ -323,12 +331,21 @@
 		{
 			"name": "JSON String",
 			"scope": [
-				"meta.structure.dictionary.json",
 				"string.quoted.double.json"
 			],
 			"settings": {
 				"fontStyle": "",
-				"foreground": "#FFFAB1"
+				"foreground": "#80ff80"
+			}
+		},
+		{
+			"name": "JSON Structure",
+			"scope": [
+				"meta.structure.array.json",
+			],
+			"settings": {
+				"fontStyle": "",
+				"foreground": "#e7e7e7"
 			}
 		}
 	]
