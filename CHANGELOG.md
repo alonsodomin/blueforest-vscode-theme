@@ -3,10 +3,11 @@ All notable changes to the "blueforest-theme" extension will be documented in th
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
-## [Unreleased]
-- Initial release
-
-## [2019-12-10]
+## 0.2.0 - [16-12-2019]
 
 - Enhanced Theme to work with latest Visual Studio Code versions
 - Improved Syntax Highlighting for more languages
+
+## 0.1.0 - [15-08-2017]
+
+- Initial release
