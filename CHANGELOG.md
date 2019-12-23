@@ -10,3 +10,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 - Enhanced Theme to work with latest Visual Studio Code versions
 - Improved Syntax Highlighting for more languages
+
+## [2019-12-23]
+
+- Improved color for overlay widgets (Search, Debug, etc.)
+- Improved syntax highlighting vor various more languages

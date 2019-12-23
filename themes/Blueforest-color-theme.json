@@ -100,6 +100,16 @@
 			}
 		},
 		{
+			"name": "Variables",
+			"scope": [
+				"variable.name",
+				"variable.other"
+			],
+			"settings": {
+				"foreground": "#fffab1",
+			}
+		},
+		{
 			"name": "Identifiers",
 			"scope": [
 				"variable.name",
@@ -170,7 +180,8 @@
 			"name": "Class names",
 			"scope": [
 				"support.class",
-				"entity.name.class"
+				"entity.name.class",
+				"support.function.go",
 			],
 			"settings": {
 				"foreground": "#91CCFF",
@@ -231,7 +242,6 @@
 			"name": "Invalid",
 			"scope": "invalid",
 			"settings": {
-				"background": "#F05050",
 				"fontStyle": "bold"
 			}
 		},
@@ -349,6 +359,38 @@
 			"settings": {
 				"fontStyle": "",
 				"foreground": "#e7e7e7"
+			}
+		},
+		{
+			"name": "Java",
+			"scope": [
+				"storage.modifier.import.java",
+				"storage.modifier.package.java",
+			],
+			"settings": {
+				"foreground": "#efefef",
+				"fontStyle": ""
+			}
+		},
+		{
+			"name": "Yaml",
+			"scope": [
+				"string.unquoted.block.yaml",
+				"string.unquoted.plain.out.yaml"
+			],
+			"settings": {
+				"foreground": "#efefef",
+				"fontStyle": ""
+			}
+		},
+		{
+			"name": "GLSL",
+			"scope": [
+				"keyword.control.hlsl",
+			],
+			"settings": {
+				"foreground": "#FFCC33",
+				"fontStyle": ""
 			}
 		}
 	]
