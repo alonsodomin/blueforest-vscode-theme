@@ -1,6 +1,6 @@
 {
 	"name": "BlueForest",
-  "colors": {
+    "colors": {
 		"titleBar.activeBackground": "#1b2b40",
 	
 		"activityBar.background": "#1b2b40",
@@ -9,7 +9,13 @@
 		"list.inactiveSelectionBackground": "#1b2b40",
 		"list.hoverBackground": "#375780",
 		"tree.indentGuidesStroke": "#0099FF",
-	
+
+		"notifications.background": "#0A101D",
+		"quickInput.background": "#141F2E",
+		"peekViewTitle.background": "#1c2d42",
+		"debugToolBar.background": "#141F2E",
+		"editorWidget.background": "#141F2E",
+
 		"menu.background": "#141F2E",
 		"input.background": "#1c2d42",
 		"dropdown.background": "#1c2d42",
@@ -44,7 +50,6 @@
 			"name": "Strings",
 			"scope": "string",
 			"settings": {
-				"fontStyle": "bold",
 				"foreground": "#80ff80"
 			}
 		},
