@@ -4,7 +4,7 @@ All notable changes to the "blueforest-theme" extension will be documented in th
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 
-## [23-12-2019]
+## 0.2.1 - [23-12-2019]
 
 - Improved color for overlay widgets (Search, Debug, etc.)
 - Improved syntax highlighting for some more languages
