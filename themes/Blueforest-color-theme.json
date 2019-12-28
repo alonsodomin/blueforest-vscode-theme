@@ -384,9 +384,10 @@
 			}
 		},
 		{
-			"name": "GLSL",
+			"name": "GLSL / Golang",
 			"scope": [
 				"keyword.control.hlsl",
+				"support.function.builtin.go"
 			],
 			"settings": {
 				"foreground": "#FFCC33",
