@@ -15,3 +15,6 @@ optimised for syntax higlighting the following languages:
  * Powershell
  * JSON
  * XML / Html
+ * Golang
+ * GLSL
+ * YAML
