@@ -1,4 +1,4 @@
-he MIT License (MIT)
+The MIT License (MIT)
 =====================
 
 Copyright © `2019` `A. Alonso Dominguez`
