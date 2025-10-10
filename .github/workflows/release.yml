@@ -30,11 +30,10 @@ jobs:
       tag: ${{ steps.setup-tag.outputs.tag }}
       version: ${{ steps.setup-tag.outputs.version }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: 14
-          registry-url: https://registry.npmjs.org/
+          node-version: 24
 
       - name: Install dependencies
         run: npm i
@@ -68,7 +67,7 @@ jobs:
     needs: package
     if: github.event.inputs.publishMS == 'true'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: ${{ needs.package.outputs.packageName }}
@@ -81,7 +80,7 @@ jobs:
     needs: package
     if: github.event.inputs.publishOVSX == 'true'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: ${{ needs.package.outputs.packageName }}
@@ -110,7 +109,7 @@ jobs:
           prerelease: false
 
       - name: Upload assets to a Release
-        uses: AButler/upload-release-assets@v2.0
+        uses: AButler/upload-release-assets@v3.0
         with:
           files: ${{ needs.package.outputs.packageName }}
           release-tag: ${{ needs.package.outputs.tag }}
