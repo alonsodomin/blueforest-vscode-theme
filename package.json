@@ -2,11 +2,11 @@
     "name": "blueforest-theme",
     "displayName": "BlueForest Theme",
     "description": "A dark, high contrast, blue theme",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "publisher": "alonsodomin",
     "icon": "icon.png",
     "engines": {
-        "vscode": "^1.105.0"
+        "vscode": "^1.104.0"
     },
     "categories": [
         "Themes"
