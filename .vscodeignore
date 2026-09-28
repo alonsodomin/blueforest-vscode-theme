@@ -2,3 +2,9 @@
 .vscode/
 
 *.sh
+scripts/
+flake.nix
+flake.lock
+treefmt.nix
+devshell.toml
+.gitignore

@@ -22,6 +22,20 @@ on:
         default: "true"
 
 jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Run flake checks
+        run: nix flake check
+
   package:
     name: Package
     runs-on: ubuntu-latest
@@ -40,7 +54,7 @@ jobs:
 
       - name: Setup package path
         id: setup
-        run: echo "packageName=$(node -e "console.log(require('./package.json').name + '-' + require('./package.json').version + '.vsix')")" >> $GITHUB_OUTPUT
+        run: echo "packageName=$(node -e "console.log(require('./package.json').name + '-' + require('./package.json').version + '.vsix')")" >> "$GITHUB_OUTPUT"
 
       - name: Package
         run: |
@@ -55,16 +69,24 @@ jobs:
       - name: Setup tag
         id: setup-tag
         run: |
-          version=$(cat ./package.json | jq .version)
+          version=$(cat ./package.json | jq -r .version)
           echo "tag: release/$version"
-          echo "tag=release/$version" >> $GITHUB_OUTPUT
-          echo "version=$version" >> $GITHUB_OUTPUT          
+          echo "tag=release/$version" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
   publishMS:
     name: Publish to VS marketplace
     runs-on: ubuntu-latest
-    needs: package
-    if: github.event.inputs.publishMS == 'true'
+    # Open VSX publishes first and acts as a gate: the Marketplace is only
+    # updated once Open VSX has succeeded, so a failed Open VSX publish leaves
+    # the published version untouched and the release can simply be re-run.
+    needs: [check, package, publishOVSX]
+    if: >-
+      !cancelled() &&
+      needs.check.result == 'success' &&
+      (needs.publishOVSX.result == 'success' ||
+       needs.publishOVSX.result == 'skipped') &&
+      github.event.inputs.publishMS == 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -76,7 +98,7 @@ jobs:
   publishOVSX:
     name: Publish to Open VSX
     runs-on: ubuntu-latest
-    needs: package
+    needs: [check, package]
     if: github.event.inputs.publishOVSX == 'true'
     steps:
       - uses: actions/checkout@v4
@@ -89,7 +111,7 @@ jobs:
   publishGH:
     name: Publish to GitHub releases
     runs-on: ubuntu-latest
-    needs: package
+    needs: [check, package]
     if: github.event.inputs.publishGH == 'true'
     steps:
       - uses: actions/download-artifact@v4

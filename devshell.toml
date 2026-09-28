@@ -1,0 +1,42 @@
+[devshell]
+name = "blueforest"
+# The tools below mirror the runtimeInputs of the `release` app in flake.nix.
+packages = [
+  "nodejs_24",
+  "vsce",
+  "coreutils",
+  "gawk",
+  "gnused",
+  "gnugrep",
+  "git",
+  "curl",
+  "jq",
+  "gh",
+]
+
+[[commands]]
+name = "package"
+category = "utilities"
+help = "Build the .vsix extension package"
+command = '''
+  set -euo pipefail
+  cd "${PRJ_ROOT:-.}"
+  pkg="$(node -p "require('./package.json').name")"
+  ver="$(node -p "require('./package.json').version")"
+  out="${pkg}-${ver}.vsix"
+  echo "Building ${out}"
+  vsce package --out "${out}"
+'''
+
+[[commands]]
+name = "release"
+category = "utilities"
+help = "Interactive release helper"
+command = '''
+  exec "${PRJ_ROOT:-.}/scripts/release.sh" "$@"
+'''
+
+[[commands]]
+package = "nixfmt"
+category = "formatters"
+help = "Nix code formatter"

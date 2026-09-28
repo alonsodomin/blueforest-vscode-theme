@@ -1,27 +1,28 @@
 {
-    "name": "blueforest-theme",
-    "displayName": "BlueForest Theme",
-    "description": "A dark, high contrast, blue theme",
-    "version": "0.3.1",
-    "publisher": "alonsodomin",
-    "icon": "icon.png",
-    "engines": {
-        "vscode": "^1.104.0"
-    },
-    "categories": [
-        "Themes"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/alonsodomin/blueforest-vscode-theme"
-    },
-    "contributes": {
-        "themes": [
-            {
-                "label": "BlueForest",
-                "uiTheme": "vs-dark",
-                "path": "./themes/Blueforest-color-theme.json"
-            }
-        ]
-    }
+  "name": "blueforest-theme",
+  "displayName": "BlueForest Theme",
+  "description": "A dark, high contrast, blue theme",
+  "version": "0.3.1",
+  "publisher": "alonsodomin",
+  "icon": "icon.png",
+  "engines": {
+    "vscode": "^1.104.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alonsodomin/blueforest-vscode-theme"
+  },
+  "contributes": {
+    "themes": [
+      {
+        "id": "BlueForest",
+        "label": "BlueForest",
+        "uiTheme": "vs-dark",
+        "path": "./themes/Blueforest-color-theme.json"
+      }
+    ]
+  }
 }
