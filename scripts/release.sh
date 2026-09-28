@@ -131,8 +131,9 @@ if [ -n "$(git status --porcelain)" ]; then
 fi
 
 if ! gh auth status >/dev/null 2>&1; then
-	printf '\nWarning: gh is not authenticated, so the CI workflow cannot be triggered.\n'
-	printf '         Run "gh auth login" first.\n'
+	# Hard stop: the version is committed and pushed before the trigger runs,
+	# so starting without a working gh would discover the problem far too late.
+	die "gh is not authenticated, so the CI workflow could not be triggered. Run: gh auth login"
 fi
 
 publisher=$(jq -r '.publisher' package.json)
