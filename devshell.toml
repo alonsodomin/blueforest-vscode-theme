@@ -33,7 +33,7 @@ name = "release"
 category = "utilities"
 help = "Interactive release helper"
 command = '''
-  exec "${PRJ_ROOT:-.}/scripts/release.sh" "$@"
+  exec "${PRJ_ROOT:-.}/tools/release.sh" "$@"
 '''
 
 [[commands]]
