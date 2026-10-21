@@ -1,36 +1,39 @@
+{ pkgs, ... }:
 {
-  on-unmatched = "info";
+  projectRootFile = "flake.nix";
 
-  formatter.nixfmt = {
-    command = "nixfmt";
-    includes = [ "*.nix" ];
-  };
+  settings.on-unmatched = "info";
 
-  formatter.taplo = {
-    command = "taplo";
+  programs.nixfmt.enable = true;
+
+  programs.taplo.enable = true;
+  settings.formatter.taplo = {
     options = [ "format" ];
     includes = [ "*.toml" ];
   };
 
-  formatter.prettier = {
-    command = "prettier";
+  programs.prettier.enable = true;
+  settings.formatter.prettier = {
     options = [ "--write" ];
     # .vscode/launch.json is JSONC (it has comments), which prettier cannot parse as json.
     excludes = [ ".vscode/**" ];
     includes = [ "*.json" ];
   };
 
+  programs.shfmt.enable = true;
   # -w is required: without it shfmt writes to stdout and treefmt would
   # silently report no change.
-  formatter.shfmt = {
-    command = "shfmt";
+  settings.formatter.shfmt = {
     options = [ "-w" ];
     includes = [ "*.sh" ];
   };
 
+  programs.shellcheck = {
+    enable = true;
+    package = pkgs.shellcheck-minimal;
+  };
   # shellcheck exits non-zero on findings, which makes treefmt fail the run.
-  formatter.shellcheck = {
-    command = "shellcheck";
+  settings.formatter.shellcheck = {
     includes = [ "*.sh" ];
   };
 }

@@ -1,8 +1,8 @@
 # Change Log
+
 All notable changes to the "blueforest-theme" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
 
 ## 0.3.2 - [28-09-2026]
 
