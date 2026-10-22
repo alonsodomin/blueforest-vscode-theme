@@ -103,24 +103,16 @@
                 test -f "$dir/themes/Blueforest-color-theme.json"
                 jq -e 'type == "object"' "$dir/themes/Blueforest-color-theme.json" >/dev/null
 
+                # The theme that gets installed is the theme of this
+                # repository.
+                cmp "$dir/themes/Blueforest-color-theme.json" ${./themes/Blueforest-color-theme.json}
+
                 # This is the entry `vscode-with-extensions` writes to
                 # extensions.json, the file VS Code reads to find its
                 # extensions.
                 echo '${pkgs.vscode-utils.toExtensionJson [ extension ]}' \
                   | jq -e '.[0].identifier.id == "alonsodomin.blueforest-theme"' >/dev/null
 
-                touch $out
-              '';
-
-          # Checks that the published extension and the sources in this
-          # repository are the same version.
-          versionCheck =
-            pkgs.runCommand "blueforest-version-check"
-              {
-                nativeBuildInputs = [ pkgs.jq ];
-              }
-              ''
-                test "$(jq -r .version ${./package.json})" = "${extension.version}"
                 touch $out
               '';
 
@@ -210,7 +202,6 @@
 
             configuration = configurationCheck;
             extension = extensionCheck;
-            version = versionCheck;
           }
           // (
             if heavyChecks then

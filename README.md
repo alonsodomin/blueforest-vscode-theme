@@ -97,8 +97,9 @@ It can also be built on its own:
 nix build .#wrapper-check
 ```
 
-The version of the published extension is pinned in `nix/extension.nix`. `nix flake check` fails
-when it drifts apart from the version in `package.json`.
+The extension is built from the sources in this repository, so the version in `package.json` is the
+version that gets installed. `nix flake check` verifies that the installed theme is identical to
+the one in `themes/`.
 
 ## Working with these sources
 
