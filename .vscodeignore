@@ -3,6 +3,7 @@
 
 *.sh
 scripts/
+nix/
 flake.nix
 flake.lock
 treefmt.nix

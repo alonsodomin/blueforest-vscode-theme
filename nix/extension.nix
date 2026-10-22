@@ -15,76 +15,37 @@ let
 
   description = packageJson.description;
 
-  displayName = packageJson.displayName;
-
   homepage = packageJson.repository.url;
 
-  engine = packageJson.engines.vscode;
+  # The extension as a VSIX, the archive the marketplaces distribute. It is
+  # built with the same tool the release uses, so that the archive holds the
+  # same files as the published one.
+  vsix = pkgs.stdenvNoCC.mkDerivation {
+    # The name has to end in .vsix, that is how the unpacker recognises the
+    # archive.
+    name = "blueforest-theme-${version}.vsix";
+    pname = "blueforest-theme-vsix";
+    inherit version;
 
-  # The extension as a VSIX, the archive the marketplaces distribute.
-  vsix =
-    pkgs.runCommand "blueforest-theme-${version}.vsix"
-      {
-        nativeBuildInputs = [ pkgs.zip ];
-      }
-      ''
-        mkdir -p extension
+    src = ../.;
 
-        cp ${../package.json} extension/package.json
-        cp -r ${../themes} extension/themes
-        cp ${../icon.png} extension/icon.png
-        cp ${../README.md} extension/readme.md
-        cp ${../LICENSE.md} extension/LICENSE.md
-        cp ${../CHANGELOG.md} extension/changelog.md
+    nativeBuildInputs = [
+      pkgs.nodejs
+      pkgs.vsce
+    ];
 
-        cat > extension.vsixmanifest <<EOF
-        <?xml version="1.0" encoding="utf-8"?>
-        <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011">
-          <Metadata>
-            <Identity Language="en-US" Id="${name}" Version="${version}" Publisher="${publisher}" />
-            <DisplayName>${displayName}</DisplayName>
-            <Description xml:space="preserve">${description}</Description>
-            <Tags>theme,color-theme</Tags>
-            <Categories>${builtins.concatStringsSep ", " packageJson.categories}</Categories>
-            <GalleryFlags>Public</GalleryFlags>
-            <Properties>
-              <Property Id="Microsoft.VisualStudio.Code.Engine" Value="${engine}" />
-              <Property Id="Microsoft.VisualStudio.Code.ExtensionKind" Value="ui,workspace,web" />
-              <Property Id="Microsoft.VisualStudio.Services.Links.Source" Value="${homepage}" />
-              <Property Id="Microsoft.VisualStudio.Services.Links.Getstarted" Value="${homepage}" />
-              <Property Id="Microsoft.VisualStudio.Services.Links.GitHub" Value="${homepage}" />
-              <Property Id="Microsoft.VisualStudio.Services.Links.Support" Value="${homepage}/issues" />
-              <Property Id="Microsoft.VisualStudio.Services.Content.Pricing" Value="Free" />
-            </Properties>
-            <License>extension/LICENSE.md</License>
-            <Icon>extension/icon.png</Icon>
-          </Metadata>
-          <Installation>
-            <InstallationTarget Id="Microsoft.VisualStudio.Code" />
-          </Installation>
-          <Dependencies />
-          <Assets>
-            <Asset Type="Microsoft.VisualStudio.Code.Manifest" Path="extension/package.json" Addressable="true" />
-            <Asset Type="Microsoft.VisualStudio.Services.Content.Details" Path="extension/readme.md" Addressable="true" />
-            <Asset Type="Microsoft.VisualStudio.Services.Content.Changelog" Path="extension/changelog.md" Addressable="true" />
-            <Asset Type="Microsoft.VisualStudio.Services.Content.License" Path="extension/LICENSE.md" Addressable="true" />
-            <Asset Type="Microsoft.VisualStudio.Services.Icons.Default" Path="extension/icon.png" Addressable="true" />
-          </Assets>
-        </PackageManifest>
-        EOF
+    buildPhase = ''
+      runHook preBuild
+      vsce package --no-dependencies --out blueforest-theme-${version}.vsix
+      runHook postBuild
+    '';
 
-        cat > '[Content_Types].xml' <<EOF
-        <?xml version="1.0" encoding="utf-8"?>
-        <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
-          <Default Extension=".json" ContentType="application/json" />
-          <Default Extension=".md" ContentType="text/markdown" />
-          <Default Extension=".png" ContentType="image/png" />
-          <Default Extension=".vsixmanifest" ContentType="text/xml" />
-        </Types>
-        EOF
-
-        zip -r -X $out extension extension.vsixmanifest '[Content_Types].xml'
-      '';
+    installPhase = ''
+      runHook preInstall
+      cp blueforest-theme-${version}.vsix $out
+      runHook postInstall
+    '';
+  };
 in
 pkgs.vscode-utils.buildVscodeExtension {
   pname = name;
