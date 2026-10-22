@@ -19,14 +19,28 @@
       theme = import ./nix/theme.nix {
         inherit lib pkgs;
       };
+
+      # The theme of the repository.
+      source = ./themes/BlueForest.tmTheme;
     in
     {
       packages.blueforest-bat-theme = theme;
 
-      # The theme of the package is the theme of the repository.
-      checks.bat-theme = pkgs.runCommand "blueforest-bat-theme-check" { } ''
-        cmp ${theme}/share/bat/themes/BlueForest.tmTheme ${./themes/BlueForest.tmTheme}
-        touch $out
-      '';
+      checks = {
+        # The theme of the package is the theme of the repository.
+        bat-theme = import ./nix/checks/theme.nix {
+          inherit pkgs theme source;
+        };
+
+        # The theme is installed in the configuration directory of the user.
+        bat-theme-home = import ./nix/checks/home.nix {
+          inherit pkgs theme source;
+        };
+
+        # The theme is installed in the system-wide configuration directory.
+        bat-theme-nixos = import ./nix/checks/nixos.nix {
+          inherit pkgs theme source;
+        };
+      };
     };
 }
