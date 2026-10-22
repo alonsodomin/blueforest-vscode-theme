@@ -225,5 +225,5 @@ appOutputs = {
 };
 ```
 
-The release of the application lives in `scripts/lib/neovim.sh`, and its workflow in
+The release of the application lives in `tools/lib/neovim.sh`, and its workflow in
 `.github/workflows/release-neovim.yml`.

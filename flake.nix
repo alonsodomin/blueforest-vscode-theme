@@ -70,13 +70,13 @@
 
       devShell = pkgs.devshell.fromTOML ./devshell.toml;
 
-      # The interactive release helper. scripts/release.sh dispatches to the
+      # The interactive release helper. tools/release.sh dispatches to the
       # script of the application that is being released.
       releaseTool = pkgs.writeShellApplication {
         name = "release";
-        # scripts/release.sh stays the single source of truth; the wrapper
+        # tools/release.sh stays the single source of truth; the wrapper
         # only supplies a hermetic PATH with the tools the script needs.
-        text = ''exec ${./scripts/release.sh} "$@"'';
+        text = ''exec ${./tools/release.sh} "$@"'';
         inheritPath = false;
         runtimeInputs = [
           pkgs.bash

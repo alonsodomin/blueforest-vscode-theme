@@ -5,7 +5,7 @@
 #   release.sh <app>   release one application, e.g. "vscode"
 #   release.sh all     release every application
 #
-# The application specific part of the release lives in scripts/lib/<app>.sh:
+# The application specific part of the release lives in tools/lib/<app>.sh:
 # it checks the published version, asks for the changelog and updates the
 # files of the application. This script picks the applications, asks for the
 # version they all share, and then commits, pushes and triggers the release
@@ -22,7 +22,7 @@ if [ -z "$repo_root" ]; then
 	exit 1
 fi
 
-lib_dir="$repo_root/scripts/lib"
+lib_dir="$repo_root/tools/lib"
 version_file="$repo_root/VERSION"
 workflow="release.yml"
 
@@ -30,7 +30,7 @@ PUBLISH_MS=true
 PUBLISH_OVSX=true
 PUBLISH_GH=true
 
-# The applications of this repository are the scripts in scripts/lib.
+# The applications of this repository are the scripts in tools/lib.
 applications=()
 for script in "$lib_dir"/*.sh; do
 	[ -e "$script" ] || continue

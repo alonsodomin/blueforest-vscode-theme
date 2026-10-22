@@ -8,8 +8,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 - The theme moved into the `vscode/` directory, and the repository now hosts
   the configurations of the theme for several tools
-- The release process is split per application: `scripts/release.sh` picks the
-  application and hands it over to `scripts/lib/vscode.sh`
+- The release process is split per application: `tools/release.sh` picks the
+  application and hands it over to `tools/lib/vscode.sh`
 
 ## 0.3.2 - [28-09-2026]
 

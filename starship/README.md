@@ -43,5 +43,5 @@ applications:
 | `overlays.starship`         | the overlay of this application      |
 | `packages.<system>.*`     | the packages of this application     |
 
-The release of the application lives in `scripts/lib/starship.sh`, and its
+The release of the application lives in `tools/lib/starship.sh`, and its
 workflow in `.github/workflows/release-starship.yml`.
