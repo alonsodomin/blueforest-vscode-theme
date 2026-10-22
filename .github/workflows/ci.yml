@@ -7,8 +7,17 @@ on:
 
 jobs:
   checks:
-    name: Checks
+    name: Checks (${{ matrix.flake }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The root flake checks every application at once, and each
+        # application is checked on its own as well, because a consumer can
+        # install just one of them.
+        flake:
+          - "."
+          - "./vscode"
     steps:
       - uses: actions/checkout@v4
 
@@ -20,4 +29,4 @@ jobs:
       # Verifies that every file is formatted (nixfmt, taplo, prettier, shfmt)
       # and that the shell script passes shellcheck.
       - name: Run flake checks
-        run: nix flake check
+        run: nix flake check ${{ matrix.flake }}

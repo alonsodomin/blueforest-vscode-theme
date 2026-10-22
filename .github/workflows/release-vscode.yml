@@ -1,0 +1,154 @@
+name: Release VS Code
+on:
+  workflow_call:
+    inputs:
+      publishMS:
+        description: "Publish to the Microsoft Marketplace"
+        type: boolean
+        default: true
+      publishOVSX:
+        description: "Publish to Open VSX"
+        type: boolean
+        default: true
+      publishGH:
+        description: "Publish to GitHub Releases"
+        type: boolean
+        default: true
+  workflow_dispatch:
+    inputs:
+      publishMS:
+        description: "Publish to the Microsoft Marketplace"
+        type: boolean
+        required: true
+        default: "true"
+      publishOVSX:
+        description: "Publish to Open VSX"
+        type: boolean
+        required: true
+        default: "true"
+      publishGH:
+        description: "Publish to GitHub Releases"
+        type: boolean
+        required: true
+        default: "true"
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Run flake checks
+        run: nix flake check ./vscode
+
+  package:
+    name: Package
+    runs-on: ubuntu-latest
+    outputs:
+      packageName: ${{ steps.setup.outputs.packageName }}
+      tag: ${{ steps.setup-tag.outputs.tag }}
+      version: ${{ steps.setup-tag.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        working-directory: vscode
+        run: npm i
+
+      - name: Setup package path
+        id: setup
+        working-directory: vscode
+        run: echo "packageName=$(node -e "console.log(require('./package.json').name + '-' + require('./package.json').version + '.vsix')")" >> "$GITHUB_OUTPUT"
+
+      - name: Package
+        working-directory: vscode
+        run: npx @vscode/vsce package --out ${{ steps.setup.outputs.packageName }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.setup.outputs.packageName }}
+          path: ./vscode/${{ steps.setup.outputs.packageName }}
+          if-no-files-found: error
+
+      - name: Setup tag
+        id: setup-tag
+        run: |
+          version=$(jq -r .version ./vscode/package.json)
+          echo "tag: vscode/$version"
+          echo "tag=vscode/$version" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  publishMS:
+    name: Publish to VS marketplace
+    runs-on: ubuntu-latest
+    # Open VSX publishes first and acts as a gate: the Marketplace is only
+    # updated once Open VSX has succeeded, so a failed Open VSX publish leaves
+    # the published version untouched and the release can simply be re-run.
+    needs: [check, package, publishOVSX]
+    if: >-
+      !cancelled() &&
+      needs.check.result == 'success' &&
+      (needs.publishOVSX.result == 'success' ||
+       needs.publishOVSX.result == 'skipped') &&
+      inputs.publishMS
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.package.outputs.packageName }}
+      - name: Publish to VS marketplace
+        run: npx @vscode/vsce publish --packagePath ./${{ needs.package.outputs.packageName }} -p ${{ secrets.VSCE_PAT }}
+
+  publishOVSX:
+    name: Publish to Open VSX
+    runs-on: ubuntu-latest
+    needs: [check, package]
+    if: inputs.publishOVSX
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.package.outputs.packageName }}
+      - name: Publish to Open VSX
+        run: npx ovsx publish ./${{ needs.package.outputs.packageName }} -p ${{ secrets.OVSX_PAT }}
+
+  publishGH:
+    name: Publish to GitHub releases
+    runs-on: ubuntu-latest
+    needs: [check, package]
+    if: inputs.publishGH
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.package.outputs.packageName }}
+
+      # The release may already exist, for example when it was published by
+      # hand to release the extension to the marketplaces. Only the assets
+      # are added in that case.
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.package.outputs.tag }}
+          VERSION: ${{ needs.package.outputs.version }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "The release $TAG exists already."
+          else
+            gh release create "$TAG" --title "Release $VERSION" --generate-notes
+          fi
+
+      - name: Upload assets to a Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.package.outputs.tag }}
+        run: gh release upload "$TAG" "${{ needs.package.outputs.packageName }}" --clobber

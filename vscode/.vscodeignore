@@ -1,0 +1,7 @@
+# The files the extension is developed with are not part of the extension.
+*.sh
+scripts/
+nix/
+flake.nix
+flake.lock
+devshell.toml

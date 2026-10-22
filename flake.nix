@@ -1,5 +1,5 @@
 {
-  description = "BlueForest VS Code theme - packaging devshell";
+  description = "BlueForest themes for many tools";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -22,216 +22,171 @@
         flake-utils.lib.system.aarch64-darwin
       ];
 
-      # The integration check builds VSCodium, which is a ~150 MB download. It
-      # is only part of `nix flake check` when it is asked for explicitly:
+      # The nixpkgs instance of this repository, with the overlays the
+      # development tools need.
+      pkgs = import nixpkgs {
+        system = "x86_64-linux";
+        overlays = [ devshell.overlays.default ];
+      };
+
+      inherit (pkgs) lib;
+
+      # The theme configurations in this repository. Every one of them is a
+      # function that returns the outputs of that application, so that the
+      # application flake and this flake cannot disagree about them.
       #
-      #   BLUEFOREST_VSCODE_INTEGRATION_CHECK=1 nix flake check --impure
-      #
-      # The environment variable is only read in impure mode, so a plain
-      # `nix flake check` never builds VSCodium by accident. The check can
-      # also be built on its own: nix build .#vscode-integration-check
-      heavyChecks = builtins.getEnv "BLUEFOREST_VSCODE_INTEGRATION_CHECK" == "1";
+      # Adding an application is a matter of adding a directory and a line
+      # here.
+      appOutputs = {
+        vscode = import ./vscode/nix/outputs.nix {
+          inherit
+            nixpkgs
+            flake-utils
+            devshell
+            ;
+        };
+      };
 
-      # Adds `blueforest-vscode-theme` to a nixpkgs instance.
-      overlay = import ./nix/overlay.nix;
+      # The outputs of every application, as a list.
+      allApps = lib.attrValues appOutputs;
 
-      # The module consumers import to get `pkgs.blueforest-vscode-theme`.
-      module = import ./nix/modules/default.nix;
+      # The overlays of every application, applied like nixpkgs applies
+      # them.
+      composeOverlays =
+        overlays: final: prev:
+        lib.foldl' (acc: overlay: overlay acc) prev (lib.reverseList overlays);
 
-      perSystem = flake-utils.lib.eachSystem supportedSystems (
-        system:
-        let
-          pkgs = import nixpkgs {
-            inherit system;
-            overlays = [
-              devshell.overlays.default
-              overlay
-            ];
-          };
+      treefmt = pkgs.treefmt.withConfig {
+        name = "treefmt";
+        settings.imports = [ ./treefmt.nix ];
+        runtimeInputs = [
+          pkgs.nixfmt
+          pkgs.taplo
+          pkgs.prettier
+          pkgs.shfmt
+          pkgs.shellcheck-minimal
+        ];
+      };
 
-          devShell = pkgs.devshell.fromTOML ./devshell.toml;
+      devShell = pkgs.devshell.fromTOML ./devshell.toml;
 
-          inherit (pkgs) lib;
+      # The interactive release helper. scripts/release.sh dispatches to the
+      # script of the application that is being released.
+      releaseTool = pkgs.writeShellApplication {
+        name = "release";
+        # scripts/release.sh stays the single source of truth; the wrapper
+        # only supplies a hermetic PATH with the tools the script needs.
+        text = ''exec ${./scripts/release.sh} "$@"'';
+        inheritPath = false;
+        runtimeInputs = [
+          pkgs.coreutils
+          pkgs.gawk
+          pkgs.gnused
+          pkgs.gnugrep
+          pkgs.git
+          pkgs.curl
+          pkgs.jq
+          pkgs.gh
+        ];
+      };
 
-          # The extension, built with the nixpkgs of this flake.
-          extension = pkgs.blueforest-vscode-theme;
+      # Checks that every application carries the version of the repository.
+      # The applications keep their own copy of it, because a consumer that
+      # installs a single application only gets that application.
+      versionCheck =
+        pkgs.runCommand "blueforest-version-check"
+          {
+            nativeBuildInputs = [ pkgs.jq ];
+            src = ./.;
+          }
+          ''
+            cd "$src"
 
-          releaseTool = pkgs.writeShellApplication {
-            name = "release";
-            # scripts/release.sh stays the single source of truth; the wrapper
-            # only supplies a hermetic PATH with the tools the script needs.
-            text = ''exec ${./scripts/release.sh} "$@"'';
-            inheritPath = false;
-            runtimeInputs = [
-              pkgs.coreutils
-              pkgs.gawk
-              pkgs.gnused
-              pkgs.gnugrep
-              pkgs.git
-              pkgs.curl
-              pkgs.jq
-              pkgs.gh
-            ];
-          };
-          treefmt = pkgs.treefmt.withConfig {
-            name = "treefmt";
-            settings.imports = [ ./treefmt.nix ];
-            runtimeInputs = [
-              pkgs.nixfmt
-              pkgs.taplo
-              pkgs.prettier
-              pkgs.shfmt
-              pkgs.shellcheck-minimal
-            ];
-          };
+            expected=$(cat VERSION)
 
-          # Checks that the extension is a valid VS Code extension: the files
-          # VS Code reads are there and the metadata is the expected one.
-          extensionCheck =
-            pkgs.runCommand "blueforest-extension-check"
-              {
-                nativeBuildInputs = [ pkgs.jq ];
-              }
-              ''
-                dir="${extension}/share/vscode/extensions/alonsodomin.blueforest-theme"
+            for file in */VERSION; do
+              actual=$(cat "$file")
+              if [ "$actual" != "$expected" ]; then
+                echo "$file has version $actual, the repository has $expected" >&2
+                exit 1
+              fi
+            done
 
-                test -f "$dir/package.json"
-                jq -e '.publisher == "alonsodomin"' "$dir/package.json" >/dev/null
-                jq -e '.name == "blueforest-theme"' "$dir/package.json" >/dev/null
-                jq -e '.version == "${extension.version}"' "$dir/package.json" >/dev/null
-                jq -e '.contributes.themes[0].id == "BlueForest"' "$dir/package.json" >/dev/null
+            for file in */package.json; do
+              actual=$(jq -r '.version' "$file")
+              if [ "$actual" != "$expected" ]; then
+                echo "$file has version $actual, the repository has $expected" >&2
+                exit 1
+              fi
+            done
 
-                test -f "$dir/themes/Blueforest-color-theme.json"
-                jq -e 'type == "object"' "$dir/themes/Blueforest-color-theme.json" >/dev/null
+            touch $out
+          '';
 
-                # The theme that gets installed is the theme of this
-                # repository.
-                cmp "$dir/themes/Blueforest-color-theme.json" ${./themes/Blueforest-color-theme.json}
+      perSystem = flake-utils.lib.eachSystem supportedSystems (system: {
+        packages = lib.concatMapAttrs (name: outputs: outputs.packages.${system} or { }) appOutputs;
 
-                # This is the entry `vscode-with-extensions` writes to
-                # extensions.json, the file VS Code reads to find its
-                # extensions.
-                echo '${pkgs.vscode-utils.toExtensionJson [ extension ]}' \
-                  | jq -e '.[0].identifier.id == "alonsodomin.blueforest-theme"' >/dev/null
-
-                touch $out
-              '';
-
-          # Checks that the configuration documented in the README evaluates
-          # and ends up installing the theme.
-          configurationCheck =
-            pkgs.runCommand "blueforest-configuration-check"
-              {
-                nativeBuildInputs = [ pkgs.jq ];
-                result = builtins.toJSON (
-                  import ./nix/modules/check.nix {
-                    inherit
-                      lib
-                      pkgs
-                      module
-                      ;
-                    extensionId = "alonsodomin.blueforest-theme";
-                  }
-                );
-              }
-              ''
-                echo "$result" | jq -e '
-                  .hasTheme
-                  and (.extensionIds | index("alonsodomin.blueforest-theme"))
-                  and (.vscodeExtensionIds | index("alonsodomin.blueforest-theme"))
-                  and (.wrapperName != null)
-                ' >/dev/null
-                touch $out
-              '';
-
-          # Checks that the theme is really installed into VSCodium. This one
-          # builds VSCodium, so it is only run on purpose.
-          integrationCheck =
-            pkgs.runCommand "blueforest-vscode-integration-check"
-              {
-                nativeBuildInputs = [ pkgs.jq ];
-              }
-              ''
-                wrapper=${
-                  pkgs.vscode-with-extensions.override {
-                    vscode = pkgs.vscodium;
-                    vscodeExtensions = [ extension ];
-                  }
-                };
-
-                extensions_dir=$(
-                  grep -oE '\-\-extensions-dir [^ "]+' "$wrapper/bin/codium" \
-                    | head -n 1 | cut -d ' ' -f 2
-                )
-                test -n "$extensions_dir"
-
-                test -f "$extensions_dir/alonsodomin.blueforest-theme/themes/Blueforest-color-theme.json"
-                jq -e '.[0].identifier.id == "alonsodomin.blueforest-theme"' \
-                  "$extensions_dir/extensions.json" >/dev/null
-
-                touch $out
-              '';
-        in
-        {
-          devShells.default = devShell;
-
-          packages = {
-            default = extension;
-            blueforest-vscode-theme = extension;
-            # The expensive check, kept out of `nix flake check` but buildable
-            # on demand: nix build .#vscode-integration-check
-            vscode-integration-check = integrationCheck;
-          };
-
-          apps.release = {
-            type = "app";
-            program = "${releaseTool}/bin/release";
-            meta.description = "Interactive release helper";
-          };
-
-          formatter = treefmt;
-
-          checks = {
-            # Fails if any file is not formatted. Because a non-zero exit from
-            # a linter (shellcheck) aborts treefmt, this also fails when a
-            # linter reports an error.
+        checks =
+          lib.concatMapAttrs (
+            name: outputs:
+            lib.mapAttrs' (checkName: check: lib.nameValuePair "${name}-${checkName}" check) (
+              outputs.checks.${system} or { }
+            )
+          ) appOutputs
+          // {
+            # Fails if any file is not formatted.
             formatting = treefmt.check ./.;
 
-            configuration = configurationCheck;
-            extension = extensionCheck;
-          }
-          // (
-            if heavyChecks then
-              {
-                vscode-integration = integrationCheck;
-              }
-            else
-              {
-              }
-          );
-        }
-      );
-    in
-    {
-      overlays.default = overlay;
+            # Fails if an application carries a version of its own.
+            version = versionCheck;
+          };
 
-      nixosModules.default = module;
-      homeManagerModules.default = module;
+        devShells = lib.concatMapAttrs (name: outputs: outputs.devShells.${system} or { }) appOutputs // {
+          default = devShell;
+        };
 
-      # The same shape nix-vscode-extensions uses, so that tooling
-      # expecting it can pick the theme up.
-      extensions = builtins.listToAttrs (
-        map (system: {
-          name = system;
-          value = {
-            open-vsx = {
-              alonsodomin = {
-                "blueforest-theme" = perSystem.packages.${system}.blueforest-vscode-theme;
-              };
+        apps =
+          lib.concatMapAttrs (
+            name: outputs:
+            lib.mapAttrs' (appName: app: lib.nameValuePair "${name}-${appName}" app) (
+              outputs.apps.${system} or { }
+            )
+          ) appOutputs
+          // {
+            release = {
+              type = "app";
+              program = "${releaseTool}/bin/release";
+              meta.description = "Interactive release helper";
             };
           };
-        }) supportedSystems
-      );
+
+        formatter = treefmt;
+      });
+    in
+    {
+      # The same shape nix-vscode-extensions uses.
+      extensions = lib.mergeAttrsList (map (outputs: outputs.extensions) allApps);
+
+      overlays = {
+        default = composeOverlays (map (outputs: outputs.overlays.default) allApps);
+      }
+      // lib.mapAttrs' (name: outputs: lib.nameValuePair name outputs.overlays.default) appOutputs;
+
+      nixosModules = {
+        default = {
+          imports = map (outputs: outputs.nixosModules.default) allApps;
+        };
+      }
+      // lib.mapAttrs' (name: outputs: lib.nameValuePair name outputs.nixosModules.default) appOutputs;
+
+      homeManagerModules = {
+        default = {
+          imports = map (outputs: outputs.homeManagerModules.default) allApps;
+        };
+      }
+      // lib.mapAttrs' (
+        name: outputs: lib.nameValuePair name outputs.homeManagerModules.default
+      ) appOutputs;
     }
     // perSystem;
 }
