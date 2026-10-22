@@ -13,24 +13,34 @@ can install just one of them:
 apps/starship/
 ├── flake.nix            # the application as a flake of its own
 ├── flake.lock
-├── nix/
-│   ├── outputs.nix      # the outputs of the application
-│   ├── overlay.nix      # adds `pkgs.blueforest-starship` to a nixpkgs instance
-│   └── modules/
-│       └── default.nix  # the module that adds the overlay
+├── flake-module.nix     # the application as a flake-parts module
+├── devshell.toml        # the development shell of the application
 ├── VERSION              # the version of the application
 ├── CHANGELOG.md         # the changes of the application
-├── devshell.toml        # the tools this application is developed with
 └── blueforest.toml      # the theme itself
 ```
 
-The application is registered in the root flake, in `appOutputs`:
+The application is registered in the root flake, as an input:
 
 ```nix
-appOutputs = {
-  vscode = import ./apps/vscode/nix/outputs.nix { … };
-  starship = import ./apps/starship/nix/outputs.nix { … };
+starship = {
+  url = "path:./apps/starship";
+  inputs.nixpkgs.follows = "nixpkgs";
+  inputs.flake-parts.follows = "flake-parts";
+  inputs.devshell.follows = "devshell";
+  inputs.home-manager.follows = "home-manager";
 };
+```
+
+and its module is imported by the root flake:
+
+```nix
+imports = [
+  inputs.devshell.flakeModule
+  inputs.home-manager.flakeModules.home-manager
+  inputs.vscode.flakeModule
+  inputs.starship.flakeModule
+];
 ```
 
 The root flake then exposes it on its own and together with the other

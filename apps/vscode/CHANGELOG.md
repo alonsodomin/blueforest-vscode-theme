@@ -8,6 +8,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 - The theme moved into the `apps/vscode/` directory, and the repository now hosts
   the configurations of the theme for several tools
+- The application is a flake of its own, which publishes a flake-parts module
+  that the root flake composes
 - The release process is split per application: `tools/release.sh` picks the
   application and hands it over to `tools/lib/vscode.sh`
 

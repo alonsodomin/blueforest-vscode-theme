@@ -115,14 +115,26 @@ combined ones:
 | `packages.<system>.vscode-integration-check`               | The check that builds VSCodium                         |
 | `overlays.default`                                          | Adds the packages of every application to a nixpkgs instance |
 | `overlays.vscode`                                           | Adds `pkgs.blueforest-vscode-theme` to a nixpkgs instance |
-| `nixosModules.default`, `homeManagerModules.default`       | The modules of every application                       |
-| `nixosModules.vscode`, `homeManagerModules.vscode`          | The module of the VS Code theme                        |
+| `nixosModules.default`, `homeModules.default`              | The modules of every application                       |
+| `nixosModules.vscode`, `homeModules.vscode`                 | The module of the VS Code theme                        |
 | `checks.<system>.<app>-<check>`                             | The checks of every application                        |
+| `devShells.default`, `devShells.<app>`                     | The development shells of the repository and of every application |
 | `extensions.<system>.open-vsx.alonsodomin.blueforest-theme`  | The same shape `nix-vscode-extensions` uses            |
 
 The application flake exposes the same outputs, without the ones of the other
 applications: `overlays.default`, `nixosModules.default` and
-`homeManagerModules.default` are the ones of the application itself.
+`homeModules.default` are the ones of the application itself. It also
+publishes the module of the application, so that the root flake can compose
+it:
+
+| Output         | Description                                                |
+| -------------- | ---------------------------------------------------------- |
+| `flakeModule`  | The module of the application, for the root flake          |
+| `flakeModules.default` | The same module, under the name of the convention   |
+
+The Home Manager modules used to be called `homeManagerModules`. That name is
+still there, as an alias of `homeModules`, for the consumers of the previous
+releases.
 
 ### Identifiers
 
@@ -209,20 +221,56 @@ An application is a directory with the theme, the packaging of it and a flake of
 ```
 apps/neovim/
 ├── flake.nix            # the application as a flake of its own
-├── nix/outputs.nix      # the outputs of the application
+├── flake-module.nix     # the application as a flake-parts module
+├── devshell.toml        # the development shell of the application
 ├── VERSION              # the version of the application
 ├── CHANGELOG.md         # the changes of the application
 └── ...
 ```
 
-Registering it in the root flake is one line, and the root flake then exposes it on its own and
-together with the other applications:
+The module of the application describes what it provides: its packages, its
+checks, its development shell, its overlay and its modules. The flake of the
+application imports it and publishes it, so that the root flake can compose it:
 
 ```nix
-appOutputs = {
-  vscode = import ./apps/vscode/nix/outputs.nix { … };
-  neovim = import ./apps/neovim/nix/outputs.nix { … };
+# apps/neovim/flake.nix
+outputs =
+  inputs@{ flake-parts, ... }:
+  flake-parts.lib.mkFlake { inherit inputs; } (
+    { config, lib, ... }:
+    {
+      imports = [
+        inputs.flake-parts.flakeModules.flakeModules
+        inputs.devshell.flakeModule
+        inputs.home-manager.flakeModules.home-manager
+        ./flake-module.nix
+      ];
+
+      flake.flakeModules.default = ./flake-module.nix;
+    }
+  );
+```
+
+Registering it in the root flake is one input and one import, and the root flake then exposes it
+on its own and together with the other applications:
+
+```nix
+inputs = {
+  neovim = {
+    url = "path:./apps/neovim";
+    inputs.nixpkgs.follows = "nixpkgs";
+    inputs.flake-parts.follows = "flake-parts";
+    inputs.devshell.follows = "devshell";
+    inputs.home-manager.follows = "home-manager";
+  };
 };
+
+imports = [
+  inputs.devshell.flakeModule
+  inputs.home-manager.flakeModules.home-manager
+  inputs.vscode.flakeModule
+  inputs.neovim.flakeModule
+];
 ```
 
 The release of the application lives in `tools/lib/neovim.sh`, and its workflow in
