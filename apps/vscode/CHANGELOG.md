@@ -6,7 +6,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## 0.4.0 - [22-10-2026]
 
-- The theme moved into the `vscode/` directory, and the repository now hosts
+- The theme moved into the `apps/vscode/` directory, and the repository now hosts
   the configurations of the theme for several tools
 - The release process is split per application: `tools/release.sh` picks the
   application and hands it over to `tools/lib/vscode.sh`

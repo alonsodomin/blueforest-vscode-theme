@@ -38,7 +38,7 @@
       # Adding an application is a matter of adding a directory and a line
       # here.
       appOutputs = {
-        vscode = import ./vscode/nix/outputs.nix {
+        vscode = import ./apps/vscode/nix/outputs.nix {
           inherit
             nixpkgs
             flake-utils
@@ -105,7 +105,7 @@
 
             expected=$(cat VERSION)
 
-            for file in */VERSION; do
+            for file in apps/*/VERSION; do
               actual=$(cat "$file")
               if [ "$actual" != "$expected" ]; then
                 echo "$file has version $actual, the repository has $expected" >&2
@@ -113,7 +113,7 @@
               fi
             done
 
-            for file in */package.json; do
+            for file in apps/*/package.json; do
               actual=$(jq -r '.version' "$file")
               if [ "$actual" != "$expected" ]; then
                 echo "$file has version $actual, the repository has $expected" >&2

@@ -7,7 +7,7 @@ its own changelog:
 
 | Application | Changelog                                  |
 | ----------- | ------------------------------------------ |
-| VS Code    | [vscode/CHANGELOG.md](vscode/CHANGELOG.md) |
+| VS Code    | [apps/vscode/CHANGELOG.md](apps/vscode/CHANGELOG.md) |
 
 Every configuration of the repository shares one version, which lives in
 [VERSION](VERSION).

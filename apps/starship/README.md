@@ -10,7 +10,7 @@ Every application of this repository is self-contained, so that a consumer
 can install just one of them:
 
 ```
-starship/
+apps/starship/
 ├── flake.nix            # the application as a flake of its own
 ├── flake.lock
 ├── nix/
@@ -28,8 +28,8 @@ The application is registered in the root flake, in `appOutputs`:
 
 ```nix
 appOutputs = {
-  vscode = import ./vscode/nix/outputs.nix { … };
-  starship = import ./starship/nix/outputs.nix { … };
+  vscode = import ./apps/vscode/nix/outputs.nix { … };
+  starship = import ./apps/starship/nix/outputs.nix { … };
 };
 ```
 

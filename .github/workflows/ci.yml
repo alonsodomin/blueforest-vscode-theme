@@ -17,7 +17,7 @@ jobs:
         # install just one of them.
         flake:
           - "."
-          - "./vscode"
+          - "./apps/vscode"
     steps:
       - uses: actions/checkout@v4
 

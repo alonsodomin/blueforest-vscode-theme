@@ -24,9 +24,9 @@ configuration lives in a directory of its own:
 
 | Application | Directory  | Status                     |
 | ----------- | ---------- | -------------------------- |
-| VS Code     | `vscode/`  | available                  |
-| Neovim      | `neovim/`  | planned                    |
-| Starship    | `starship/`| planned                    |
+| VS Code     | `apps/vscode/`   | available                  |
+| Neovim      | `apps/neovim/`   | planned                    |
+| Starship    | `apps/starship/` | planned                    |
 
 Every directory is self-contained: it holds the theme itself, the packaging of
 it, the module that installs it and its own changelog. That way a consumer can
@@ -88,7 +88,7 @@ them does not have to take the others:
 
 ```nix
 {
-  inputs.blueforest-vscode.url = "github:alonsodomin/blueforest-theme?dir=vscode";
+  inputs.blueforest-vscode.url = "github:alonsodomin/blueforest-theme?dir=apps/vscode";
 
   outputs =
     { nixpkgs, blueforest-vscode, ... }:
@@ -102,7 +102,7 @@ them does not have to take the others:
 }
 ```
 
-The same works for `?dir=neovim` and `?dir=starship` once they are written.
+The same works for `?dir=apps/neovim` and `?dir=apps/starship` once they are written.
 
 ### Outputs
 
@@ -145,16 +145,16 @@ It can also be built on its own:
 nix build .#vscode-integration-check
 ```
 
-The extension is built from the sources in the `vscode/` directory with `vsce`, the same tool the release
-uses, so the version in `vscode/package.json` is the version that gets installed. `nix flake check`
-verifies that the installed theme is identical to the one in `vscode/themes/`, and that every
+The extension is built from the sources in the `apps/vscode/` directory with `vsce`, the same tool the release
+uses, so the version in `apps/vscode/package.json` is the version that gets installed. `nix flake check`
+verifies that the installed theme is identical to the one in `apps/vscode/themes/`, and that every
 application carries the version of the repository.
 
 Every application can be checked on its own, the way a consumer that installs only one of them
 gets it:
 
 ```console
-nix flake check ./vscode
+nix flake check ./apps/vscode
 ```
 
 ## Working with these sources
@@ -207,7 +207,7 @@ application brings a workflow of its own, and a job in `release.yml` that calls 
 An application is a directory with the theme, the packaging of it and a flake of its own:
 
 ```
-neovim/
+apps/neovim/
 ├── flake.nix            # the application as a flake of its own
 ├── nix/outputs.nix      # the outputs of the application
 ├── VERSION              # the version of the application
@@ -220,8 +220,8 @@ together with the other applications:
 
 ```nix
 appOutputs = {
-  vscode = import ./vscode/nix/outputs.nix { … };
-  neovim = import ./neovim/nix/outputs.nix { … };
+  vscode = import ./apps/vscode/nix/outputs.nix { … };
+  neovim = import ./apps/neovim/nix/outputs.nix { … };
 };
 ```
 
