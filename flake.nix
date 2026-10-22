@@ -6,6 +6,7 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     devshell.url = "github:numtide/devshell";
     home-manager.url = "github:nix-community/home-manager";
+    treefmt-nix.url = "github:numtide/treefmt-nix";
 
     # The applications of the repository. Every one of them is a flake of
     # its own, and the root flake composes the module it publishes.
@@ -39,6 +40,7 @@
             # The options that the modules below declare.
             inputs.devshell.flakeModule
             inputs.home-manager.flakeModules.home-manager
+            inputs.treefmt-nix.flakeModule
 
             # The modules the applications publish.
             inputs.vscode.flakeModule
@@ -76,18 +78,6 @@
               ...
             }:
             let
-              treefmt = pkgs.treefmt.withConfig {
-                name = "treefmt";
-                settings.imports = [ ./treefmt.nix ];
-                runtimeInputs = [
-                  pkgs.nixfmt
-                  pkgs.taplo
-                  pkgs.prettier
-                  pkgs.shfmt
-                  pkgs.shellcheck-minimal
-                ];
-              };
-
               # The interactive release helper. tools/release.sh dispatches
               # to the script of the application that is being released.
               releaseTool = pkgs.writeShellApplication {
@@ -148,15 +138,12 @@
               # The development shell of the repository, declared in TOML.
               devshells.default = inputs.devshell.lib.importTOML ./devshell.toml;
 
-              formatter = treefmt;
+              # The formatting of the repository. The formatter and the check
+              # that verifies it come with the module.
+              treefmt.imports = [ ./treefmt.nix ];
 
-              checks = {
-                # Fails if any file is not formatted.
-                formatting = treefmt.check ./.;
-
-                # Fails if an application carries a version of its own.
-                version = versionCheck;
-              };
+              # Fails if an application carries a version of its own.
+              checks.version = versionCheck;
 
               apps.release = {
                 type = "app";
