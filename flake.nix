@@ -79,6 +79,7 @@
         text = ''exec ${./scripts/release.sh} "$@"'';
         inheritPath = false;
         runtimeInputs = [
+          pkgs.bash
           pkgs.coreutils
           pkgs.gawk
           pkgs.gnused

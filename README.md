@@ -185,7 +185,7 @@ nix develop ./vscode
 
 ### Releases
 
-Releases are managed by the tooling here, you can trigger a release by either running `nix run .#release` or by simply running `release` from the previously mentioned shell.
+Releases are managed by the tooling here, you can trigger a release by either running `nix run .#release -- vscode` or by simply running `release vscode` from the previously mentioned shell.
 
 The release helper takes the name of the application to release, or `all` for every application of
 the repository:
