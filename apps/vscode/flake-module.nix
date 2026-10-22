@@ -1,55 +1,29 @@
-# The outputs of the BlueForest theme for VS Code.
+# The BlueForest theme for VS Code, as a flake-parts module.
 #
-# The function returns the outputs of the application, so that the
-# application flake and the root flake can never disagree about what the
-# application provides.
+# The root flake imports this module through the flake of the application,
+# and the flake of the application imports it itself. Both of them therefore
+# agree on what the application provides.
 {
-  nixpkgs,
-  flake-utils,
-  devshell,
+  config,
+  lib,
+  inputs,
   ...
 }:
-let
-  # x86_64-darwin is omitted on purpose: nixpkgs 26.11 dropped it.
-  supportedSystems = [
-    flake-utils.lib.system.x86_64-linux
-    flake-utils.lib.system.aarch64-linux
-    flake-utils.lib.system.aarch64-darwin
-  ];
-
-  # The integration check builds VSCodium, which is a ~150 MB download. It
-  # is only part of `nix flake check` when it is asked for explicitly:
-  #
-  #   BLUEFOREST_VSCODE_INTEGRATION_CHECK=1 nix flake check --impure
-  #
-  # The environment variable is only read in impure mode, so a plain
-  # `nix flake check` never builds VSCodium by accident. The check can
-  # also be built on its own: nix build .#vscode-integration-check
-  heavyChecks = builtins.getEnv "BLUEFOREST_VSCODE_INTEGRATION_CHECK" == "1";
-
-  # Adds `blueforest-vscode-theme` to a nixpkgs instance.
-  #
-  # The extension is built with the overlaid nixpkgs, so it always matches
-  # the VS Code version of the editor it is installed into.
-  overlay = import ./overlay.nix;
-
-  # The module consumers import to get `pkgs.blueforest-vscode-theme`.
-  module = import ./modules/default.nix;
-
-  perSystem = flake-utils.lib.eachSystem supportedSystems (
-    system:
+{
+  perSystem =
+    {
+      inputs',
+      system,
+      ...
+    }:
     let
-      pkgs = import nixpkgs {
+      # The nixpkgs instance of the application. The extension is built with
+      # the overlaid nixpkgs, so it always matches the VS Code version of the
+      # editor it is installed into.
+      pkgs = import inputs.nixpkgs {
         inherit system;
-        overlays = [
-          devshell.overlays.default
-          overlay
-        ];
+        overlays = [ config.flake.overlays.vscode ];
       };
-
-      devShell = pkgs.devshell.fromTOML ../devshell.toml;
-
-      inherit (pkgs) lib;
 
       # The extension, built with the nixpkgs of this flake.
       extension = pkgs.blueforest-vscode-theme;
@@ -75,7 +49,7 @@ let
 
             # The theme that gets installed is the theme of this
             # repository.
-            cmp "$dir/themes/Blueforest-color-theme.json" ${../themes/Blueforest-color-theme.json}
+            cmp "$dir/themes/Blueforest-color-theme.json" ${./themes/Blueforest-color-theme.json}
 
             # This is the entry `vscode-with-extensions` writes to
             # extensions.json, the file VS Code reads to find its
@@ -93,12 +67,12 @@ let
           {
             nativeBuildInputs = [ pkgs.jq ];
             result = builtins.toJSON (
-              import ./modules/check.nix {
+              import ./nix/modules/check.nix {
                 inherit
                   lib
                   pkgs
-                  module
                   ;
+                module = import ./nix/modules/default.nix;
                 extensionId = "alonsodomin.blueforest-theme";
               }
             );
@@ -151,11 +125,11 @@ let
       };
 
       checks = {
-        extension = extensionCheck;
-        configuration = configurationCheck;
+        vscode-extension = extensionCheck;
+        vscode-configuration = configurationCheck;
       }
       // (
-        if heavyChecks then
+        if builtins.getEnv "BLUEFOREST_VSCODE_INTEGRATION_CHECK" == "1" then
           {
             vscode-integration = integrationCheck;
           }
@@ -164,30 +138,31 @@ let
           }
       );
 
-      devShells.default = devShell;
-    }
-  );
-in
-perSystem
-// {
-  # The same shape nix-vscode-extensions uses, so that tooling expecting it
-  # can pick the theme up.
-  extensions = builtins.listToAttrs (
-    map (system: {
-      name = system;
-      value = {
-        open-vsx = {
-          alonsodomin = {
-            "blueforest-theme" = perSystem.packages.${system}.blueforest-vscode-theme;
-          };
+      # The development shell of the application, declared in TOML.
+      devshells.vscode = inputs.devshell.lib.importTOML ./devshell.toml;
+    };
+
+  flake = {
+    # The same shape nix-vscode-extensions uses, so that tooling expecting
+    # it can pick the theme up.
+    extensions = lib.genAttrs config.systems (system: {
+      open-vsx = {
+        alonsodomin = {
+          "blueforest-theme" = config.allSystems.${system}.packages.blueforest-vscode-theme;
         };
       };
-    }) supportedSystems
-  );
+    });
 
-  overlays.default = overlay;
+    overlays.vscode = final: prev: {
+      blueforest-vscode-theme = import ./nix/extension.nix { pkgs = final; };
+    };
 
-  nixosModules.default = module;
+    nixosModules.vscode = {
+      nixpkgs.overlays = [ config.flake.overlays.vscode ];
+    };
 
-  homeManagerModules.default = module;
+    homeModules.vscode = {
+      nixpkgs.overlays = [ config.flake.overlays.vscode ];
+    };
+  };
 }

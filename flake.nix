@@ -3,197 +3,175 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+    flake-parts.url = "github:hercules-ci/flake-parts";
     devshell.url = "github:numtide/devshell";
+    home-manager.url = "github:nix-community/home-manager";
+
+    # The applications of the repository. Every one of them is a flake of
+    # its own, and the root flake composes the module it publishes.
+    #
+    # Adding an application is a matter of adding a directory and a line
+    # here.
+    vscode = {
+      url = "path:./apps/vscode";
+
+      # The repository pins the inputs of its applications, so that every
+      # application is built with the same nixpkgs.
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+      inputs.devshell.follows = "devshell";
+      inputs.home-manager.follows = "home-manager";
+    };
   };
 
   outputs =
-    {
-      nixpkgs,
-      flake-utils,
-      devshell,
-      ...
-    }:
+    inputs@{ flake-parts, ... }:
     let
-      # x86_64-darwin is omitted on purpose: nixpkgs 26.11 dropped it.
-      supportedSystems = [
-        flake-utils.lib.system.x86_64-linux
-        flake-utils.lib.system.aarch64-linux
-        flake-utils.lib.system.aarch64-darwin
-      ];
+      flake = flake-parts.lib.mkFlake { inherit inputs; } (
+        {
+          config,
+          lib,
+          inputs,
+          ...
+        }:
+        {
+          imports = [
+            # The options that the modules below declare.
+            inputs.devshell.flakeModule
+            inputs.home-manager.flakeModules.home-manager
 
-      # The nixpkgs instance of this repository, with the overlays the
-      # development tools need.
-      pkgs = import nixpkgs {
-        system = "x86_64-linux";
-        overlays = [ devshell.overlays.default ];
-      };
+            # The modules the applications publish.
+            inputs.vscode.flakeModule
+          ];
 
-      inherit (pkgs) lib;
+          systems = [
+            "x86_64-linux"
+            "aarch64-linux"
+            "aarch64-darwin"
+          ];
 
-      # The theme configurations in this repository. Every one of them is a
-      # function that returns the outputs of that application, so that the
-      # application flake and this flake cannot disagree about them.
-      #
-      # Adding an application is a matter of adding a directory and a line
-      # here.
-      appOutputs = {
-        vscode = import ./apps/vscode/nix/outputs.nix {
-          inherit
-            nixpkgs
-            flake-utils
-            devshell
-            ;
-        };
-      };
+          flake = {
+            # The overlays of every application, applied like nixpkgs
+            # applies them.
+            overlays.default =
+              let
+                compose =
+                  overlays: final: prev:
+                  lib.foldl' (acc: overlay: overlay acc) prev (lib.reverseList overlays);
+              in
+              compose [ config.flake.overlays.vscode ];
 
-      # The outputs of every application, as a list.
-      allApps = lib.attrValues appOutputs;
+            nixosModules.default = {
+              imports = [ config.flake.nixosModules.vscode ];
+            };
 
-      # The overlays of every application, applied like nixpkgs applies
-      # them.
-      composeOverlays =
-        overlays: final: prev:
-        lib.foldl' (acc: overlay: overlay acc) prev (lib.reverseList overlays);
-
-      treefmt = pkgs.treefmt.withConfig {
-        name = "treefmt";
-        settings.imports = [ ./treefmt.nix ];
-        runtimeInputs = [
-          pkgs.nixfmt
-          pkgs.taplo
-          pkgs.prettier
-          pkgs.shfmt
-          pkgs.shellcheck-minimal
-        ];
-      };
-
-      devShell = pkgs.devshell.fromTOML ./devshell.toml;
-
-      # The interactive release helper. tools/release.sh dispatches to the
-      # script of the application that is being released.
-      releaseTool = pkgs.writeShellApplication {
-        name = "release";
-        # tools/release.sh stays the single source of truth; the wrapper
-        # only supplies a hermetic PATH with the tools the script needs.
-        text = ''exec ${./tools/release.sh} "$@"'';
-        inheritPath = false;
-        runtimeInputs = [
-          pkgs.bash
-          pkgs.coreutils
-          pkgs.gawk
-          pkgs.gnused
-          pkgs.gnugrep
-          pkgs.git
-          pkgs.curl
-          pkgs.jq
-          pkgs.gh
-        ];
-      };
-
-      # Checks that every application carries the version of the repository.
-      # The applications keep their own copy of it, because a consumer that
-      # installs a single application only gets that application.
-      versionCheck =
-        pkgs.runCommand "blueforest-version-check"
-          {
-            nativeBuildInputs = [ pkgs.jq ];
-            src = ./.;
-          }
-          ''
-            cd "$src"
-
-            expected=$(cat VERSION)
-
-            for file in apps/*/VERSION; do
-              actual=$(cat "$file")
-              if [ "$actual" != "$expected" ]; then
-                echo "$file has version $actual, the repository has $expected" >&2
-                exit 1
-              fi
-            done
-
-            for file in apps/*/package.json; do
-              actual=$(jq -r '.version' "$file")
-              if [ "$actual" != "$expected" ]; then
-                echo "$file has version $actual, the repository has $expected" >&2
-                exit 1
-              fi
-            done
-
-            touch $out
-          '';
-
-      perSystem = flake-utils.lib.eachSystem supportedSystems (system: {
-        packages = lib.concatMapAttrs (name: outputs: outputs.packages.${system} or { }) appOutputs;
-
-        checks =
-          lib.concatMapAttrs (
-            name: outputs:
-            lib.mapAttrs' (checkName: check: lib.nameValuePair "${name}-${checkName}" check) (
-              outputs.checks.${system} or { }
-            )
-          ) appOutputs
-          // {
-            # Fails if any file is not formatted.
-            formatting = treefmt.check ./.;
-
-            # Fails if an application carries a version of its own.
-            version = versionCheck;
-          };
-
-        # The development shell of every application, next to the one of the
-        # repository.
-        devShells =
-          lib.mapAttrs' (name: outputs: lib.nameValuePair name outputs.devShells.${system}.default) (
-            lib.filterAttrs (_: outputs: (outputs.devShells.${system}.default or null) != null) appOutputs
-          )
-          // {
-            default = devShell;
-          };
-
-        apps =
-          lib.concatMapAttrs (
-            name: outputs:
-            lib.mapAttrs' (appName: app: lib.nameValuePair "${name}-${appName}" app) (
-              outputs.apps.${system} or { }
-            )
-          ) appOutputs
-          // {
-            release = {
-              type = "app";
-              program = "${releaseTool}/bin/release";
-              meta.description = "Interactive release helper";
+            homeModules.default = {
+              imports = [ config.flake.homeModules.vscode ];
             };
           };
 
-        formatter = treefmt;
-      });
+          perSystem =
+            {
+              pkgs,
+              ...
+            }:
+            let
+              treefmt = pkgs.treefmt.withConfig {
+                name = "treefmt";
+                settings.imports = [ ./treefmt.nix ];
+                runtimeInputs = [
+                  pkgs.nixfmt
+                  pkgs.taplo
+                  pkgs.prettier
+                  pkgs.shfmt
+                  pkgs.shellcheck-minimal
+                ];
+              };
+
+              # The interactive release helper. tools/release.sh dispatches
+              # to the script of the application that is being released.
+              releaseTool = pkgs.writeShellApplication {
+                name = "release";
+                # tools/release.sh stays the single source of truth; the
+                # wrapper only supplies a hermetic PATH with the tools the
+                # script needs.
+                text = ''exec ${./tools/release.sh} "$@"'';
+                inheritPath = false;
+                runtimeInputs = [
+                  pkgs.bash
+                  pkgs.coreutils
+                  pkgs.gawk
+                  pkgs.gnused
+                  pkgs.gnugrep
+                  pkgs.git
+                  pkgs.curl
+                  pkgs.jq
+                  pkgs.gh
+                ];
+              };
+
+              # Checks that every application carries the version of the
+              # repository. The applications keep their own copy of it,
+              # because a consumer that installs a single application only
+              # gets that application.
+              versionCheck =
+                pkgs.runCommand "blueforest-version-check"
+                  {
+                    nativeBuildInputs = [ pkgs.jq ];
+                    src = ./.;
+                  }
+                  ''
+                    cd "$src"
+
+                    expected=$(cat VERSION)
+
+                    for file in apps/*/VERSION; do
+                      actual=$(cat "$file")
+                      if [ "$actual" != "$expected" ]; then
+                        echo "$file has version $actual, the repository has $expected" >&2
+                        exit 1
+                      fi
+                    done
+
+                    for file in apps/*/package.json; do
+                      actual=$(jq -r '.version' "$file")
+                      if [ "$actual" != "$expected" ]; then
+                        echo "$file has version $actual, the repository has $expected" >&2
+                        exit 1
+                      fi
+                    done
+
+                    touch $out
+                  '';
+            in
+            {
+              # The development shell of the repository, declared in TOML.
+              devshells.default = inputs.devshell.lib.importTOML ./devshell.toml;
+
+              formatter = treefmt;
+
+              checks = {
+                # Fails if any file is not formatted.
+                formatting = treefmt.check ./.;
+
+                # Fails if an application carries a version of its own.
+                version = versionCheck;
+              };
+
+              apps.release = {
+                type = "app";
+                program = "${releaseTool}/bin/release";
+                meta.description = "Interactive release helper";
+              };
+            };
+        }
+      );
     in
-    {
-      # The same shape nix-vscode-extensions uses.
-      extensions = lib.mergeAttrsList (map (outputs: outputs.extensions) allApps);
-
-      overlays = {
-        default = composeOverlays (map (outputs: outputs.overlays.default) allApps);
-      }
-      // lib.mapAttrs' (name: outputs: lib.nameValuePair name outputs.overlays.default) appOutputs;
-
-      nixosModules = {
-        default = {
-          imports = map (outputs: outputs.nixosModules.default) allApps;
-        };
-      }
-      // lib.mapAttrs' (name: outputs: lib.nameValuePair name outputs.nixosModules.default) appOutputs;
-
-      homeManagerModules = {
-        default = {
-          imports = map (outputs: outputs.homeManagerModules.default) allApps;
-        };
-      }
-      // lib.mapAttrs' (
-        name: outputs: lib.nameValuePair name outputs.homeManagerModules.default
-      ) appOutputs;
-    }
-    // perSystem;
+    flake
+    // {
+      # The name the Home Manager modules had before Home Manager's own
+      # module was used. It is kept for the consumers of the previous
+      # releases.
+      homeManagerModules = flake.homeModules;
+    };
 }
