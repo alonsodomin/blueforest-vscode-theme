@@ -180,7 +180,7 @@ This repository comes with a Nix flake that sets up a development shell that com
 The development shell of an application comes with the tools that application is built with:
 
 ```console
-nix develop ./vscode
+nix develop .#vscode
 ```
 
 ### Releases

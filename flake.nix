@@ -142,9 +142,15 @@
             version = versionCheck;
           };
 
-        devShells = lib.concatMapAttrs (name: outputs: outputs.devShells.${system} or { }) appOutputs // {
-          default = devShell;
-        };
+        # The development shell of every application, next to the one of the
+        # repository.
+        devShells =
+          lib.mapAttrs' (name: outputs: lib.nameValuePair name outputs.devShells.${system}.default) (
+            lib.filterAttrs (_: outputs: (outputs.devShells.${system}.default or null) != null) appOutputs
+          )
+          // {
+            default = devShell;
+          };
 
         apps =
           lib.concatMapAttrs (
