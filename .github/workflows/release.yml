@@ -10,6 +10,11 @@ on:
         type: boolean
         required: true
         default: "true"
+      publishBat:
+        description: "Publish the bat theme"
+        type: boolean
+        required: true
+        default: "false"
       publishMS:
         description: "Publish to the Microsoft Marketplace"
         type: boolean
@@ -45,4 +50,10 @@ jobs:
       publishMS: ${{ inputs.publishMS != false }}
       publishOVSX: ${{ inputs.publishOVSX != false }}
       publishGH: ${{ inputs.publishGH != false }}
+    secrets: inherit
+  bat:
+    name: bat
+    # A GitHub release only releases the application its tag belongs to.
+    if: ${{ inputs.publishBat == true || startsWith(github.event.release.tag_name || '', 'bat/') }}
+    uses: ./.github/workflows/release-bat.yml
     secrets: inherit

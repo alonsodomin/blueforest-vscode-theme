@@ -23,6 +23,13 @@
       inputs.devshell.follows = "devshell";
       inputs.home-manager.follows = "home-manager";
     };
+
+    bat = {
+      url = "path:./apps/bat";
+
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
   };
 
   outputs =
@@ -44,6 +51,7 @@
 
             # The modules the applications publish.
             inputs.vscode.flakeModule
+            inputs.bat.flakeModule
           ];
 
           systems = [

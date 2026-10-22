@@ -8,6 +8,7 @@ its own changelog:
 | Application | Changelog                                  |
 | ----------- | ------------------------------------------ |
 | VS Code    | [apps/vscode/CHANGELOG.md](apps/vscode/CHANGELOG.md) |
+| bat        | [apps/bat/CHANGELOG.md](apps/bat/CHANGELOG.md) |
 
 Every configuration of the repository shares one version, which lives in
 [VERSION](VERSION).

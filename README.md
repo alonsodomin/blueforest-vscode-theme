@@ -25,6 +25,7 @@ configuration lives in a directory of its own:
 | Application | Directory  | Status                     |
 | ----------- | ---------- | -------------------------- |
 | VS Code     | `apps/vscode/`   | available                  |
+| bat         | `apps/bat/`       | available                  |
 | Neovim      | `apps/neovim/`   | planned                    |
 | Starship    | `apps/starship/` | planned                    |
 
@@ -113,6 +114,7 @@ combined ones:
 | ---------------------------------------------------------- | ------------------------------------------------------ |
 | `packages.<system>.blueforest-vscode-theme`                | The theme as a VS Code extension package               |
 | `packages.<system>.vscode-integration-check`               | The check that builds VSCodium                         |
+| `packages.<system>.blueforest-bat-theme`                   | The theme for bat                                      |
 | `overlays.default`                                          | Adds the packages of every application to a nixpkgs instance |
 | `overlays.vscode`                                           | Adds `pkgs.blueforest-vscode-theme` to a nixpkgs instance |
 | `nixosModules.default`, `homeModules.default`              | The modules of every application                       |
@@ -167,7 +169,29 @@ gets it:
 
 ```console
 nix flake check ./apps/vscode
+nix flake check ./apps/bat
 ```
+
+### The theme for bat
+
+The theme of bat is a TextMate file, `BlueForest.tmTheme`, and it is packaged as
+`blueforest-bat-theme`. The package installs it where bat looks for the themes — the
+system-wide configuration directory `/etc/bat` when it is installed in a NixOS system, and the
+configuration directory of the user (`bat --config-dir`) when it is installed in Home Manager —
+and it does nothing else:
+
+```nix
+# NixOS
+environment.systemPackages = [ blueforest.packages.${system}.blueforest-bat-theme ];
+
+# Home Manager
+home.packages = [ blueforest.packages.${system}.blueforest-bat-theme ];
+```
+
+Two things are left to the user: bat itself has to be enabled (`programs.bat.enable = true;`),
+and the theme has to be selected (`programs.bat.settings.theme = "BlueForest";` on NixOS,
+`programs.bat.config.theme = "BlueForest";` on Home Manager). The name of the theme is
+`BlueForest`, the name of the file.
 
 ## Working with these sources
 
