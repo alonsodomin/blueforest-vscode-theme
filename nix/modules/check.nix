@@ -53,8 +53,8 @@ let
       consumerModule
       module
       {
-        programs.vscode.extensions = [ pkgs.blueforest-theme ];
-        programs.vscodium.profiles.default.extensions = [ pkgs.blueforest-theme ];
+        programs.vscode.extensions = [ pkgs.blueforest-vscode-theme ];
+        programs.vscodium.profiles.default.extensions = [ pkgs.blueforest-vscode-theme ];
       }
     ];
     specialArgs = {

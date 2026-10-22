@@ -48,7 +48,9 @@ let
   };
 in
 pkgs.vscode-utils.buildVscodeExtension {
-  pname = name;
+  # The package is named after the repository, the extension itself keeps
+  # the name it has in the marketplaces.
+  pname = "blueforest-vscode-theme";
   inherit version;
 
   src = vsix;

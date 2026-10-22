@@ -39,7 +39,7 @@ module that makes it available to your configuration.
               enable = true;
               package = pkgs.vscodium;
               extensions = [
-                pkgs.blueforest-theme
+                pkgs.blueforest-vscode-theme
               ];
             };
           }
@@ -49,7 +49,7 @@ module that makes it available to your configuration.
 }
 ```
 
-The module only adds the overlay that provides `pkgs.blueforest-theme`. It does not touch
+The module only adds the overlay that provides `pkgs.blueforest-vscode-theme`. It does not touch
 `programs.vscode` or `programs.vscodium`, so which editor installs the theme, and whether it is
 installed at all, stays your decision.
 
@@ -64,21 +64,23 @@ extension goes into the profile of the editor:
 
 ```nix
 programs.vscodium.profiles.default.extensions = [
-  pkgs.blueforest-theme
+  pkgs.blueforest-vscode-theme
 ];
 ```
 
 ### Outputs
 
-| Output                                                   | Description                                         |
-| -------------------------------------------------------- | --------------------------------------------------- |
-| `packages.<system>.blueforest-theme`                      | The theme as a VS Code extension package            |
-| `overlays.default`                                        | Adds `pkgs.blueforest-theme` to a nixpkgs instance  |
-| `nixosModules.default`, `homeManagerModules.default`       | Adds the overlay to `nixpkgs.overlays`              |
-| `extensions.<system>.open-vsx.alonsodomin.blueforest-theme` | The same shape `nix-vscode-extensions` uses       |
+| Output                                                     | Description                                            |
+| ---------------------------------------------------------- | ------------------------------------------------------ |
+| `packages.<system>.blueforest-vscode-theme`                 | The theme as a VS Code extension package               |
+| `packages.<system>.vscode-integration-check`                | The check that builds VSCodium                         |
+| `overlays.default`                                          | Adds `pkgs.blueforest-vscode-theme` to a nixpkgs instance |
+| `nixosModules.default`, `homeManagerModules.default`         | Adds the overlay to `nixpkgs.overlays`                 |
+| `extensions.<system>.open-vsx.alonsodomin.blueforest-theme`  | The same shape `nix-vscode-extensions` uses            |
 
 ### Identifiers
 
+* The package is `blueforest-vscode-theme`.
 * The extension is `alonsodomin.blueforest-theme`.
 * The theme inside the editor is `BlueForest`. Select it with `"workbench.colorTheme": "BlueForest"`.
 
@@ -88,13 +90,13 @@ programs.vscodium.profiles.default.extensions = [
 asked for:
 
 ```console
-BLUEFOREST_WRAPPER_CHECK=1 nix flake check --impure
+BLUEFOREST_VSCODE_INTEGRATION_CHECK=1 nix flake check --impure
 ```
 
 It can also be built on its own:
 
 ```console
-nix build .#wrapper-check
+nix build .#vscode-integration-check
 ```
 
 The extension is built from the sources in this repository with `vsce`, the same tool the release

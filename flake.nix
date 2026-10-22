@@ -22,19 +22,20 @@
         flake-utils.lib.system.aarch64-darwin
       ];
 
-      # The wrapper check builds VSCodium, which is a ~150 MB download. It is
-      # only part of `nix flake check` when it is asked for explicitly:
+      # The integration check builds VSCodium, which is a ~150 MB download. It
+      # is only part of `nix flake check` when it is asked for explicitly:
       #
-      #   BLUEFOREST_WRAPPER_CHECK=1 nix flake check --impure
+      #   BLUEFOREST_VSCODE_INTEGRATION_CHECK=1 nix flake check --impure
       #
       # The environment variable is only read in impure mode, so a plain
-      # `nix flake check` never builds VSCodium by accident.
-      heavyChecks = builtins.getEnv "BLUEFOREST_WRAPPER_CHECK" == "1";
+      # `nix flake check` never builds VSCodium by accident. The check can
+      # also be built on its own: nix build .#vscode-integration-check
+      heavyChecks = builtins.getEnv "BLUEFOREST_VSCODE_INTEGRATION_CHECK" == "1";
 
-      # Adds `blueforest-theme` to a nixpkgs instance.
+      # Adds `blueforest-vscode-theme` to a nixpkgs instance.
       overlay = import ./nix/overlay.nix;
 
-      # The module consumers import to get `pkgs.blueforest-theme`.
+      # The module consumers import to get `pkgs.blueforest-vscode-theme`.
       module = import ./nix/modules/default.nix;
 
       perSystem = flake-utils.lib.eachSystem supportedSystems (
@@ -53,7 +54,7 @@
           inherit (pkgs) lib;
 
           # The extension, built with the nixpkgs of this flake.
-          extension = pkgs.blueforest-theme;
+          extension = pkgs.blueforest-vscode-theme;
 
           releaseTool = pkgs.writeShellApplication {
             name = "release";
@@ -145,8 +146,8 @@
 
           # Checks that the theme is really installed into VSCodium. This one
           # builds VSCodium, so it is only run on purpose.
-          wrapperCheck =
-            pkgs.runCommand "blueforest-wrapper-check"
+          integrationCheck =
+            pkgs.runCommand "blueforest-vscode-integration-check"
               {
                 nativeBuildInputs = [ pkgs.jq ];
               }
@@ -176,16 +177,12 @@
 
           packages = {
             default = extension;
-            blueforest-theme = extension;
-            devShell = devShell;
+            blueforest-vscode-theme = extension;
             # The expensive check, kept out of `nix flake check` but buildable
-            # on demand: nix build .#wrapper-check
-            wrapper-check = wrapperCheck;
+            # on demand: nix build .#vscode-integration-check
+            vscode-integration-check = integrationCheck;
           };
 
-          apps.default = devShell.flakeApp // {
-            meta.description = "BlueForest packaging devshell";
-          };
           apps.release = {
             type = "app";
             program = "${releaseTool}/bin/release";
@@ -206,7 +203,7 @@
           // (
             if heavyChecks then
               {
-                wrapper = wrapperCheck;
+                vscode-integration = integrationCheck;
               }
             else
               {
@@ -229,7 +226,7 @@
           value = {
             open-vsx = {
               alonsodomin = {
-                "blueforest-theme" = perSystem.packages.${system}.blueforest-theme;
+                "blueforest-theme" = perSystem.packages.${system}.blueforest-vscode-theme;
               };
             };
           };
