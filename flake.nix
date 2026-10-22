@@ -86,61 +86,7 @@
               ...
             }:
             let
-              # The interactive release helper. tools/release.sh dispatches
-              # to the script of the application that is being released.
-              releaseTool = pkgs.writeShellApplication {
-                name = "release";
-                # tools/release.sh stays the single source of truth; the
-                # wrapper only supplies a hermetic PATH with the tools the
-                # script needs.
-                text = ''exec ${./tools/release.sh} "$@"'';
-                inheritPath = false;
-                runtimeInputs = [
-                  pkgs.bash
-                  pkgs.coreutils
-                  pkgs.gawk
-                  pkgs.gnused
-                  pkgs.gnugrep
-                  pkgs.git
-                  pkgs.curl
-                  pkgs.jq
-                  pkgs.gh
-                ];
-              };
-
-              # Checks that every application carries the version of the
-              # repository. The applications keep their own copy of it,
-              # because a consumer that installs a single application only
-              # gets that application.
-              versionCheck =
-                pkgs.runCommand "blueforest-version-check"
-                  {
-                    nativeBuildInputs = [ pkgs.jq ];
-                    src = ./.;
-                  }
-                  ''
-                    cd "$src"
-
-                    expected=$(cat VERSION)
-
-                    for file in apps/*/VERSION; do
-                      actual=$(cat "$file")
-                      if [ "$actual" != "$expected" ]; then
-                        echo "$file has version $actual, the repository has $expected" >&2
-                        exit 1
-                      fi
-                    done
-
-                    for file in apps/*/package.json; do
-                      actual=$(jq -r '.version' "$file")
-                      if [ "$actual" != "$expected" ]; then
-                        echo "$file has version $actual, the repository has $expected" >&2
-                        exit 1
-                      fi
-                    done
-
-                    touch $out
-                  '';
+              release = import ./tools/release.nix { inherit pkgs; };
             in
             {
               # The development shell of the repository, declared in TOML.
@@ -151,11 +97,11 @@
               treefmt.imports = [ ./treefmt.nix ];
 
               # Fails if an application carries a version of its own.
-              checks.version = versionCheck;
+              checks.version = import ./tests/version.nix { inherit pkgs; };
 
               apps.release = {
                 type = "app";
-                program = "${releaseTool}/bin/release";
+                program = "${release}/bin/release";
                 meta.description = "Interactive release helper";
               };
             };
