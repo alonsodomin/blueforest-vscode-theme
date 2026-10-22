@@ -34,85 +34,76 @@
 
   outputs =
     inputs@{ flake-parts, ... }:
-    let
-      flake = flake-parts.lib.mkFlake { inherit inputs; } (
-        {
-          config,
-          lib,
-          inputs,
-          ...
-        }:
-        {
-          imports = [
-            # The options that the modules below declare.
-            inputs.devshell.flakeModule
-            inputs.home-manager.flakeModules.home-manager
-            inputs.treefmt-nix.flakeModule
+    flake-parts.lib.mkFlake { inherit inputs; } (
+      {
+        config,
+        lib,
+        inputs,
+        ...
+      }:
+      {
+        imports = [
+          # The options that the modules below declare.
+          inputs.devshell.flakeModule
+          inputs.home-manager.flakeModules.home-manager
+          inputs.treefmt-nix.flakeModule
 
-            # The modules the applications publish.
-            inputs.vscode.flakeModule
-            inputs.bat.flakeModule
-          ];
+          # The modules the applications publish.
+          inputs.vscode.flakeModule
+          inputs.bat.flakeModule
+        ];
 
-          systems = [
-            "x86_64-linux"
-            "aarch64-linux"
-            "aarch64-darwin"
-          ];
+        systems = [
+          "x86_64-linux"
+          "aarch64-linux"
+          "aarch64-darwin"
+        ];
 
-          flake = {
-            # The overlays of every application, applied like nixpkgs
-            # applies them.
-            overlays.default =
-              let
-                compose =
-                  overlays: final: prev:
-                  lib.foldl' (acc: overlay: overlay acc) prev (lib.reverseList overlays);
-              in
-              compose [ config.flake.overlays.vscode ];
+        flake = {
+          # The overlays of every application, applied like nixpkgs
+          # applies them.
+          overlays.default =
+            let
+              compose =
+                overlays: final: prev:
+                lib.foldl' (acc: overlay: overlay acc) prev (lib.reverseList overlays);
+            in
+            compose [ config.flake.overlays.vscode ];
 
-            nixosModules.default = {
-              imports = [ config.flake.nixosModules.vscode ];
-            };
-
-            homeModules.default = {
-              imports = [ config.flake.homeModules.vscode ];
-            };
+          nixosModules.default = {
+            imports = [ config.flake.nixosModules.vscode ];
           };
 
-          perSystem =
-            {
-              pkgs,
-              ...
-            }:
-            let
-              release = import ./tools/release.nix { inherit pkgs; };
-            in
-            {
-              # The development shell of the repository, declared in TOML.
-              devshells.default = inputs.devshell.lib.importTOML ./devshell.toml;
+          homeModules.default = {
+            imports = [ config.flake.homeModules.vscode ];
+          };
+        };
 
-              # The formatting of the repository. The formatter and the check
-              # that verifies it come with the module.
-              treefmt.imports = [ ./treefmt.nix ];
+        perSystem =
+          {
+            pkgs,
+            ...
+          }:
+          let
+            release = import ./tools/release.nix { inherit pkgs; };
+          in
+          {
+            # The development shell of the repository, declared in TOML.
+            devshells.default = inputs.devshell.lib.importTOML ./devshell.toml;
 
-              # Fails if an application carries a version of its own.
-              checks.version = import ./tests/version.nix { inherit pkgs; };
+            # The formatting of the repository. The formatter and the check
+            # that verifies it come with the module.
+            treefmt.imports = [ ./treefmt.nix ];
 
-              apps.release = {
-                type = "app";
-                program = "${release}/bin/release";
-                meta.description = "Interactive release helper";
-              };
+            # Fails if an application carries a version of its own.
+            checks.version = import ./tests/version.nix { inherit pkgs; };
+
+            apps.release = {
+              type = "app";
+              program = "${release}/bin/release";
+              meta.description = "Interactive release helper";
             };
-        }
-      );
-    in
-    flake
-    // {
-      # The name the Home Manager modules had before Home Manager's own
-      # module was used. It is kept for the consumers of the previous
-      # releases.
-      homeManagerModules = flake.homeModules;
-    };
+          };
+      }
+    );
 }

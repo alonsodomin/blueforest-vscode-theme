@@ -73,7 +73,7 @@ If you prefer to wire the overlay yourself:
 nixpkgs.overlays = [ blueforest.overlays.default ];
 ```
 
-The same module works for Home Manager as `blueforest.homeManagerModules.default`, where the
+The same module works for Home Manager as `blueforest.homeModules.default`, where the
 extension goes into the profile of the editor:
 
 ```nix
@@ -133,10 +133,6 @@ it:
 | -------------- | ---------------------------------------------------------- |
 | `flakeModule`  | The module of the application, for the root flake          |
 | `flakeModules.default` | The same module, under the name of the convention   |
-
-The Home Manager modules used to be called `homeManagerModules`. That name is
-still there, as an alias of `homeModules`, for the consumers of the previous
-releases.
 
 ### Identifiers
 
