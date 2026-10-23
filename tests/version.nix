@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MPL-2.0
+#
 # Checks that every application carries the version of the repository.
 #
 # The applications keep their own copy of it, because a consumer that

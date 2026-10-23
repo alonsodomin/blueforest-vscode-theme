@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MPL-2.0
+#
 # The release helper of the repository.
 #
 # tools/release.sh picks the application that is being released and hands it

@@ -13,6 +13,11 @@ its own changelog:
 Every configuration of the repository shares one version, which lives in
 [VERSION](VERSION).
 
+## Unreleased
+
+- The configurations of the theme are licensed under CC BY 4.0 International,
+  and the code that packages them under MPL-2.0
+
 ## 0.4.0 - [22-10-2026]
 
 - The repository holds a configuration of the theme per application, each of

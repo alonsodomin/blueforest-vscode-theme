@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MPL-2.0
+#
 # Checks that the setup hook installs the theme in the configuration
 # directory of bat, which is where the user of Home Manager looks for it.
 {

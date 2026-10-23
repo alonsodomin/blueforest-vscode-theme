@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MPL-2.0
+#
 # The BlueForest theme as a VS Code extension.
 #
 # The extension is built from the sources in this repository, the same way the
@@ -61,7 +63,11 @@ pkgs.vscode-utils.buildVscodeExtension {
 
   meta = {
     inherit description homepage;
-    license = pkgs.lib.licenses.mit;
+    # The code of the extension is MPL-2.0, the theme it carries is CC BY 4.0.
+    license = [
+      pkgs.lib.licenses.mpl20
+      pkgs.lib.licenses.cc-by-40
+    ];
     platforms = pkgs.lib.platforms.all;
   };
 }

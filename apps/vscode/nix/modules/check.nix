@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MPL-2.0
+#
 # Evaluates the configuration documented in the README against the module
 # shipped by this flake and reports what the module system resolved.
 #

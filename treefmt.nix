@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MPL-2.0
+#
 # The formatting of the repository.
 #
 # The configuration lives here, and the root flake only points treefmt-nix at

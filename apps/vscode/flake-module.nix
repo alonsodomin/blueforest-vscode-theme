@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MPL-2.0
+#
 # The BlueForest theme for VS Code, as a flake-parts module.
 #
 # The root flake imports this module through the flake of the application,

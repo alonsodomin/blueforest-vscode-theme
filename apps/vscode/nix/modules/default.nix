@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MPL-2.0
+#
 # Makes `pkgs.blueforest-theme` available to the consumer's configuration.
 #
 # The module deliberately does not touch `programs.vscodium`: which editor

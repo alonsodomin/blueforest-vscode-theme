@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MPL-2.0
+#
 # Checks that the setup hook installs the theme in the system-wide
 # configuration directory of bat, which is where the activation of a NixOS
 # system puts it.

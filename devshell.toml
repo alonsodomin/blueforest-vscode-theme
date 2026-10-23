@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MPL-2.0
+
 [devshell]
 name = "blueforest"
 # The tools below mirror the runtimeInputs of the `release` app in flake.nix.

@@ -1,5 +1,8 @@
 # Blueforest Theme
 
+[![Mozilla Public License 2.0](https://img.shields.io/badge/MPL--2.0-blue?logo=mozilla&logoColor=white)](LICENSE)
+[![Creative Commons Attribution 4.0 International](https://img.shields.io/badge/CC_BY_4.0-lightgrey?logo=creativecommons&logoColor=black)](LICENSES/CC-BY-4.0.txt)
+
 A dark blue theme inspired by the [Blueforest IntelliJ](https://github.com/sirthias/BlueForest) theme. It has been
 optimised for syntax higlighting the following languages:
 
@@ -295,3 +298,24 @@ imports = [
 
 The release of the application lives in `tools/lib/neovim.sh`, and its workflow in
 `.github/workflows/release-neovim.yml`.
+
+## License
+
+The theme — the colour schemes in `apps/*/themes/`, the images and the documentation — is licensed
+under the [Creative Commons Attribution 4.0 International licence][cc-by-4.0].
+
+The code that packages it — the Nix expressions, the shell scripts, the CI workflows and the
+manifests — is licensed under the [Mozilla Public License 2.0][mpl-2.0].
+
+The theme is a port of [BlueForest][blueforest] by mathias[at]decodified[dot]com, which is licensed
+under the [Creative Commons Attribution 3.0 Unported licence][cc-by-3.0]. [NOTICE.md](NOTICE.md)
+carries the attribution of the original and the licence of every path in the repository.
+
+[![CC BY 4.0][cc-by-image]][cc-by-4.0] [![MPL 2.0][mpl-image]][mpl-2.0]
+
+[blueforest]: https://github.com/sirthias/BlueForest
+[cc-by-3.0]: https://creativecommons.org/licenses/by/3.0/
+[cc-by-4.0]: https://creativecommons.org/licenses/by/4.0/
+[cc-by-image]: https://mirrors.creativecommons.org/presskit/buttons/88x31/svg/by.svg
+[mpl-2.0]: https://mozilla.org/MPL/2.0/
+[mpl-image]: assets/mpl-2.0.svg
