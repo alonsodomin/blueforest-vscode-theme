@@ -1,0 +1,110 @@
+add_newline = true
+format = "[░▒▓](#0099FF)$os$username[](bg:#1b2b40 fg:#0099FF)$directory[](fg:#1b2b40 bg:#273e5c)$git_branch$git_status[](fg:#273e5c bg:#375780)$nix_shell$nodejs$python$rust$golang$java$scala$php$ruby$bun$deno$docker_context$terraform$aws[](fg:#375780)$cmd_duration$line_break$character"
+
+[aws]
+format = "[[ $symbol ($profile) ](fg:#ffcc33 bg:#375780)]($style)"
+style = "bg:#375780"
+symbol = " (AWS)"
+
+[bun]
+format = "[[ $symbol ($version) ](fg:#1e5c1e bg:#375780)]($style)"
+style = "bg:#375780"
+symbol = ""
+
+[character]
+error_symbol = "[❯](bold #FF8080)"
+success_symbol = "[❯](bold #0099FF)"
+
+[cmd_duration]
+format = "[ 󰔛 $duration ]($style)"
+min_time = 1000
+show_milliseconds = false
+show_notifications = false
+style = "fg:#ffcc33"
+
+[deno]
+format = "[[ $symbol ($version) ](fg:#80ff80 bg:#375780)]($style)"
+style = "bg:#375780"
+symbol = ""
+
+[directory]
+format = "[ $path ]($style)"
+style = "fg:#91CCFF bg:#1b2b40"
+truncate_to_repo = true
+truncation_length = 5
+truncation_symbol = ".../"
+
+[docker_context]
+format = "[[ $symbol ($context) ](fg:#91CCFF bg:#375780)]($style)"
+style = "bg:#375780"
+symbol = ""
+
+[git_branch]
+format = "[[ $symbol $branch ](fg:#ffcc33 bg:#273e5c)]($style)"
+style = "bg:#273e5c"
+symbol = ""
+
+[git_status]
+format = "[[($all_status$ahead_behind )](fg:#ffcc33 bg:#273e5c)]($style)"
+style = "bg:#273e5c"
+
+[golang]
+format = "[[ $symbol ($version) ](fg:#80ff80 bg:#375780)]($style)"
+style = "bg:#375780"
+symbol = ""
+
+[java]
+format = "[[ $symbol ($version) ](fg:#FF8080 bg:#375780)]($style)"
+style = "bg:#375780"
+symbol = ""
+
+[nix_shell]
+format = "[[ $symbol$state( \\($name\\)) ](fg:#91CCFF bg:#375780)]($style)"
+style = "bg:#375780"
+symbol = " "
+
+[nodejs]
+format = "[[ $symbol ($version) ](fg:#80ff80 bg:#375780)]($style)"
+style = "bg:#375780"
+symbol = ""
+
+[os]
+disabled = false
+format = "[ $symbol ]($style)"
+style = "bg:#0099FF fg:#0A101D"
+
+[php]
+format = "[[ $symbol ($version) ](fg:#91CCFF bg:#375780)]($style)"
+style = "bg:#375780"
+symbol = ""
+
+[python]
+format = "[[ $symbol ($version) ](fg:#80ff80 bg:#375780)]($style)"
+style = "bg:#375780"
+symbol = ""
+
+[ruby]
+format = "[[ $symbol ($version) ](fg:#FF8080 bg:#375780)]($style)"
+style = "bg:#375780"
+symbol = ""
+
+[rust]
+format = "[[ $symbol ($version) ](fg:#1e5c1e bg:#375780)]($style)"
+style = "bg:#375780"
+symbol = ""
+
+[scala]
+format = "[[ $symbol ($version) ](fg:#FF8080 bg:#375780)]($style)"
+style = "bg:#375780"
+symbol = ""
+
+[terraform]
+format = "[[ $symbol ($workspace) ](fg:#91CCFF bg:#375780)]($style)"
+style = "bg:#375780"
+symbol = "󱁢"
+
+[username]
+format = "[$user]($style)"
+show_always = true
+style_root = "bg:#0099FF fg:#FF8080"
+style_user = "bg:#0099FF fg:#0A101D"
