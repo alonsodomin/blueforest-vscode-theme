@@ -1,39 +1,16 @@
+# SPDX-License-Identifier: MPL-2.0
+
 [devshell]
 name = "blueforest"
 # The tools below mirror the runtimeInputs of the `release` app in flake.nix.
-packages = [
-  "nodejs_24",
-  "vsce",
-  "coreutils",
-  "gawk",
-  "gnused",
-  "gnugrep",
-  "git",
-  "curl",
-  "jq",
-  "gh",
-]
-
-[[commands]]
-name = "package"
-category = "utilities"
-help = "Build the .vsix extension package"
-command = '''
-  set -euo pipefail
-  cd "${PRJ_ROOT:-.}"
-  pkg="$(node -p "require('./package.json').name")"
-  ver="$(node -p "require('./package.json').version")"
-  out="${pkg}-${ver}.vsix"
-  echo "Building ${out}"
-  vsce package --out "${out}"
-'''
+packages = ["coreutils", "gawk", "gnused", "gnugrep", "git", "curl", "jq", "gh"]
 
 [[commands]]
 name = "release"
 category = "utilities"
 help = "Interactive release helper"
 command = '''
-  exec "${PRJ_ROOT:-.}/scripts/release.sh" "$@"
+  exec "${PRJ_ROOT:-.}/tools/release.sh" "$@"
 '''
 
 [[commands]]

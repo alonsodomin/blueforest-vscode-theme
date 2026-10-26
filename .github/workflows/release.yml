@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MPL-2.0
+
 name: Release
 on:
   release:
@@ -5,6 +7,16 @@ on:
       - published
   workflow_dispatch:
     inputs:
+      publishVSCode:
+        description: "Publish the VS Code theme"
+        type: boolean
+        required: true
+        default: "true"
+      publishBat:
+        description: "Publish the bat theme"
+        type: boolean
+        required: true
+        default: "false"
       publishMS:
         description: "Publish to the Microsoft Marketplace"
         type: boolean
@@ -22,116 +34,28 @@ on:
         default: "true"
 
 jobs:
-  check:
-    name: Check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: cachix/install-nix-action@v31
-        with:
-          extra_nix_config: |
-            experimental-features = nix-command flakes
-
-      - name: Run flake checks
-        run: nix flake check
-
-  package:
-    name: Package
-    runs-on: ubuntu-latest
-    outputs:
-      packageName: ${{ steps.setup.outputs.packageName }}
-      tag: ${{ steps.setup-tag.outputs.tag }}
-      version: ${{ steps.setup-tag.outputs.version }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 24
-
-      - name: Install dependencies
-        run: npm i
-
-      - name: Setup package path
-        id: setup
-        run: echo "packageName=$(node -e "console.log(require('./package.json').name + '-' + require('./package.json').version + '.vsix')")" >> "$GITHUB_OUTPUT"
-
-      - name: Package
-        run: |
-          npx @vscode/vsce package --out ${{ steps.setup.outputs.packageName }}
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ${{ steps.setup.outputs.packageName }}
-          path: ./${{ steps.setup.outputs.packageName }}
-          if-no-files-found: error
-
-      - name: Setup tag
-        id: setup-tag
-        run: |
-          version=$(cat ./package.json | jq -r .version)
-          echo "tag: release/$version"
-          echo "tag=release/$version" >> "$GITHUB_OUTPUT"
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-
-  publishMS:
-    name: Publish to VS marketplace
-    runs-on: ubuntu-latest
-    # Open VSX publishes first and acts as a gate: the Marketplace is only
-    # updated once Open VSX has succeeded, so a failed Open VSX publish leaves
-    # the published version untouched and the release can simply be re-run.
-    needs: [check, package, publishOVSX]
-    if: >-
-      !cancelled() &&
-      needs.check.result == 'success' &&
-      (needs.publishOVSX.result == 'success' ||
-       needs.publishOVSX.result == 'skipped') &&
-      github.event.inputs.publishMS == 'true'
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          name: ${{ needs.package.outputs.packageName }}
-      - name: Publish to VS marketplace
-        run: npx @vscode/vsce publish --packagePath ./${{ needs.package.outputs.packageName }} -p ${{ secrets.VSCE_PAT }}
-
-  publishOVSX:
-    name: Publish to Open VSX
-    runs-on: ubuntu-latest
-    needs: [check, package]
-    if: github.event.inputs.publishOVSX == 'true'
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          name: ${{ needs.package.outputs.packageName }}
-      - name: Publish to Open VSX
-        run: npx ovsx publish ./${{ needs.package.outputs.packageName }} -p ${{ secrets.OVSX_PAT }}
-
-  publishGH:
-    name: Publish to GitHub releases
-    runs-on: ubuntu-latest
-    needs: [check, package]
-    if: github.event.inputs.publishGH == 'true'
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: ${{ needs.package.outputs.packageName }}
-
-      - name: Create Release
-        id: create-release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ needs.package.outputs.tag }}
-          release_name: Release ${{ needs.package.outputs.version }}
-          draft: false
-          prerelease: false
-
-      - name: Upload assets to a Release
-        uses: AButler/upload-release-assets@v3.0
-        with:
-          files: ${{ needs.package.outputs.packageName }}
-          release-tag: ${{ needs.package.outputs.tag }}
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+  # Every application of the repository has a workflow of its own, and this
+  # one dispatches to them. Add a job here when an application is added, and
+  # give it the workflow that releases it:
+  #
+  #   neovim:
+  #     name: Neovim
+  #     if: ${{ inputs.publishNeovim == true || startsWith(github.event.release.tag_name || '', 'neovim/') }}
+  #     uses: ./.github/workflows/release-neovim.yml
+  #     secrets: inherit
+  vscode:
+    name: VS Code
+    # A GitHub release only releases the application its tag belongs to.
+    if: ${{ inputs.publishVSCode == true || startsWith(github.event.release.tag_name || '', 'vscode/') }}
+    uses: ./.github/workflows/release-vscode.yml
+    with:
+      publishMS: ${{ inputs.publishMS != false }}
+      publishOVSX: ${{ inputs.publishOVSX != false }}
+      publishGH: ${{ inputs.publishGH != false }}
+    secrets: inherit
+  bat:
+    name: bat
+    # A GitHub release only releases the application its tag belongs to.
+    if: ${{ inputs.publishBat == true || startsWith(github.event.release.tag_name || '', 'bat/') }}
+    uses: ./.github/workflows/release-bat.yml
+    secrets: inherit

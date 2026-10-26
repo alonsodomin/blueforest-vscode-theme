@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: MPL-2.0
+
+# The files the extension is developed with are not part of the extension.
+*.sh
+nix/
+flake.nix
+flake.lock
+devshell.toml

@@ -1,34 +1,28 @@
 # Change Log
-All notable changes to the "blueforest-theme" extension will be documented in this file.
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+All notable changes to the BlueForest theme will be documented in this file.
 
+The theme has a configuration for several tools, and every configuration has
+its own changelog:
 
-## 0.3.2 - [28-09-2026]
+| Application | Changelog                                  |
+| ----------- | ------------------------------------------ |
+| VS Code    | [apps/vscode/CHANGELOG.md](apps/vscode/CHANGELOG.md) |
+| bat        | [apps/bat/CHANGELOG.md](apps/bat/CHANGELOG.md) |
 
-- - Add ID to the theme manifest
-- - Fix bad syntax errors in the theme's JSON
+Every configuration of the repository shares one version, which lives in
+[VERSION](VERSION).
 
-## 0.3.1 - [13-10-2025]
+## Unreleased
 
-- Lowered the minimum VS Code version to 1.104 to allow installing on Codium
-- Fixed a typo in the license header
+- The configurations of the theme are licensed under CC BY 4.0 International,
+  and the code that packages them under MPL-2.0
 
-## 0.3.0 - [10-10-2025]
+## 0.4.0 - [22-10-2026]
 
-- Added MIT license
-- Raised the minimum VS Code version to 1.105
-
-## 0.2.1 - [23-12-2019]
-
-- Improved color for overlay widgets (Search, Debug, etc.)
-- Improved syntax highlighting for some more languages
-
-## 0.2.0 - [16-12-2019]
-
-- Enhanced Theme to work with latest Visual Studio Code versions
-- Improved Syntax Highlighting for more languages
-
-## 0.1.0 - [15-08-2017]
-
-- Initial release
+- The repository holds a configuration of the theme per application, each of
+  them in a directory of its own
+- The applications are flakes of their own, which publish a module that the
+  root flake composes
+- The Home Manager modules are now called `homeModules`, the way Home Manager
+  calls them

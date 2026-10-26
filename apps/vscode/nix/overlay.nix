@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: MPL-2.0
+#
+# Adds the BlueForest theme to a nixpkgs instance as `blueforest-vscode-theme`.
+#
+# The extension is built with the overlaid nixpkgs, so it always matches the
+# VS Code version of the editor it is installed into.
+final: _prev: {
+  blueforest-vscode-theme = import ./extension.nix { pkgs = final; };
+}
