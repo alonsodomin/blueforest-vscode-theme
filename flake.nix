@@ -32,6 +32,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
     };
+
+    starship = {
+      url = "path:./apps/starship";
+
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+      inputs.devshell.follows = "devshell";
+      inputs.home-manager.follows = "home-manager";
+    };
   };
 
   outputs =
@@ -53,6 +62,7 @@
           # The modules the applications publish.
           inputs.vscode.flakeModule
           inputs.bat.flakeModule
+          inputs.starship.flakeModule
         ];
 
         systems = [
@@ -64,20 +74,23 @@
         flake = {
           # The overlays of every application, applied like nixpkgs
           # applies them.
-          overlays.default =
-            let
-              compose =
-                overlays: final: prev:
-                lib.foldl' (acc: overlay: overlay acc) prev (lib.reverseList overlays);
-            in
-            compose [ config.flake.overlays.vscode ];
+          overlays.default = lib.composeManyExtensions [
+            config.flake.overlays.vscode
+            config.flake.overlays.starship
+          ];
 
           nixosModules.default = {
-            imports = [ config.flake.nixosModules.vscode ];
+            imports = [
+              config.flake.nixosModules.vscode
+              config.flake.nixosModules.starship
+            ];
           };
 
           homeModules.default = {
-            imports = [ config.flake.homeModules.vscode ];
+            imports = [
+              config.flake.homeModules.vscode
+              config.flake.homeModules.starship
+            ];
           };
         };
 
@@ -99,6 +112,18 @@
 
             # Fails if an application carries a version of its own.
             checks.version = import ./tests/version.nix { inherit pkgs; };
+
+            # Fails if the overlay of the repository does not add the
+            # packages of every application.
+            checks.overlay = import ./tests/overlay.nix {
+              inherit pkgs;
+              overlay = config.flake.overlays.default;
+              expected = [
+                "blueforest-vscode-theme"
+                "blueforest-starship-preset"
+                "blueforest-starship"
+              ];
+            };
 
             apps.release = {
               type = "app";

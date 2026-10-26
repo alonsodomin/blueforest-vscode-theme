@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: MPL-2.0
+
+[devshell]
+name = "blueforest-starship"
+# The tools to try the preset and format the sources.
+packages = ["starship", "taplo", "nixfmt"]
+
+[[commands]]
+package = "nixfmt"
+category = "formatters"
+help = "Nix code formatter"

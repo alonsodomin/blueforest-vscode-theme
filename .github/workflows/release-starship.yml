@@ -1,0 +1,78 @@
+# SPDX-License-Identifier: MPL-2.0
+
+name: Release Starship
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Run flake checks
+        run: nix flake check ./apps/starship
+
+  package:
+    name: Package
+    runs-on: ubuntu-latest
+    needs: [check]
+    outputs:
+      tag: ${{ steps.setup.outputs.tag }}
+      version: ${{ steps.setup.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup
+        id: setup
+        run: |
+          version=$(cat apps/starship/VERSION)
+          echo "tag: starship/$version"
+          echo "tag=starship/$version" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Package the preset
+        run: cp apps/starship/themes/blueforest.toml ./blueforest-starship-preset-${{ steps.setup.outputs.version }}.toml
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: blueforest-starship-preset
+          path: ./blueforest-starship-preset-*.toml
+          if-no-files-found: error
+
+  publishGH:
+    name: Publish to GitHub releases
+    runs-on: ubuntu-latest
+    needs: [check, package]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: blueforest-starship-preset
+
+      # The release may already exist, for example when it was published by
+      # hand to release the preset. Only the assets are added in that case.
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.package.outputs.tag }}
+          VERSION: ${{ needs.package.outputs.version }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "The release $TAG exists already."
+          else
+            gh release create "$TAG" --title "Release $VERSION" --generate-notes
+          fi
+
+      - name: Upload assets to a Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.package.outputs.tag }}
+        run: gh release upload "$TAG" ./blueforest-starship-preset-*.toml --clobber

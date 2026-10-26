@@ -156,9 +156,35 @@
         "flake-parts": "flake-parts",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs_3",
+        "starship": "starship",
         "treefmt-nix": "treefmt-nix",
         "vscode": "vscode"
       }
+    },
+    "starship": {
+      "inputs": {
+        "devshell": [
+          "devshell"
+        ],
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "home-manager": [
+          "home-manager"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./apps/starship",
+        "type": "path"
+      },
+      "original": {
+        "path": "./apps/starship",
+        "type": "path"
+      },
+      "parent": []
     },
     "treefmt-nix": {
       "inputs": {

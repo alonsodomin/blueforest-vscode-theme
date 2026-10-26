@@ -17,6 +17,11 @@ on:
         type: boolean
         required: true
         default: "false"
+      publishStarship:
+        description: "Publish the Starship preset"
+        type: boolean
+        required: true
+        default: "false"
       publishMS:
         description: "Publish to the Microsoft Marketplace"
         type: boolean
@@ -58,4 +63,10 @@ jobs:
     # A GitHub release only releases the application its tag belongs to.
     if: ${{ inputs.publishBat == true || startsWith(github.event.release.tag_name || '', 'bat/') }}
     uses: ./.github/workflows/release-bat.yml
+    secrets: inherit
+  starship:
+    name: Starship
+    # A GitHub release only releases the application its tag belongs to.
+    if: ${{ inputs.publishStarship == true || startsWith(github.event.release.tag_name || '', 'starship/') }}
+    uses: ./.github/workflows/release-starship.yml
     secrets: inherit

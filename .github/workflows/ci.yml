@@ -21,6 +21,7 @@ jobs:
           - "."
           - "./apps/vscode"
           - "./apps/bat"
+          - "./apps/starship"
     steps:
       - uses: actions/checkout@v4
 

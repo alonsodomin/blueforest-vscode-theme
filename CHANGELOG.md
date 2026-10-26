@@ -9,6 +9,7 @@ its own changelog:
 | ----------- | ------------------------------------------ |
 | VS Code    | [apps/vscode/CHANGELOG.md](apps/vscode/CHANGELOG.md) |
 | bat        | [apps/bat/CHANGELOG.md](apps/bat/CHANGELOG.md) |
+| Starship   | [apps/starship/CHANGELOG.md](apps/starship/CHANGELOG.md) |
 
 Every configuration of the repository shares one version, which lives in
 [VERSION](VERSION).
@@ -17,6 +18,11 @@ Every configuration of the repository shares one version, which lives in
 
 - The configurations of the theme are licensed under CC BY 4.0 International,
   and the code that packages them under MPL-2.0
+- The BlueForest theme now includes a Starship preset, packaged as
+  `blueforest-starship-preset` and `blueforest-starship`
+- The overlay of the repository adds the packages of every application again:
+  it was composed by hand, which lost one of the two arguments an overlay
+  takes, and it did not add anything
 
 ## 0.4.0 - [22-10-2026]
 

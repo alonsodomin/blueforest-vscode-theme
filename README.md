@@ -30,7 +30,7 @@ configuration lives in a directory of its own:
 | VS Code     | `apps/vscode/`   | available                  |
 | bat         | `apps/bat/`       | available                  |
 | Neovim      | `apps/neovim/`   | planned                    |
-| Starship    | `apps/starship/` | planned                    |
+| Starship    | `apps/starship/` | available                  |
 
 Every directory is self-contained: it holds the theme itself, the packaging of
 it, the module that installs it and its own changelog. That way a consumer can
@@ -106,7 +106,7 @@ them does not have to take the others:
 }
 ```
 
-The same works for `?dir=apps/neovim` and `?dir=apps/starship` once they are written.
+The same works for `?dir=apps/starship`; it will work for `?dir=apps/neovim` once it is written.
 
 ### Outputs
 
@@ -118,10 +118,14 @@ combined ones:
 | `packages.<system>.blueforest-vscode-theme`                | The theme as a VS Code extension package               |
 | `packages.<system>.vscode-integration-check`               | The check that builds VSCodium                         |
 | `packages.<system>.blueforest-bat-theme`                   | The theme for bat                                      |
+| `packages.<system>.blueforest-starship-preset`             | The preset for Starship                                |
+| `packages.<system>.blueforest-starship`                    | Starship with the preset bundled                       |
 | `overlays.default`                                          | Adds the packages of every application to a nixpkgs instance |
 | `overlays.vscode`                                           | Adds `pkgs.blueforest-vscode-theme` to a nixpkgs instance |
+| `overlays.starship`                                         | Adds `pkgs.blueforest-starship-preset` and `pkgs.blueforest-starship` to a nixpkgs instance |
 | `nixosModules.default`, `homeModules.default`              | The modules of every application                       |
 | `nixosModules.vscode`, `homeModules.vscode`                 | The module of the VS Code theme                        |
+| `nixosModules.starship`, `homeModules.starship`             | The module of the Starship preset                      |
 | `checks.<system>.<app>-<check>`                             | The checks of every application                        |
 | `devShells.default`, `devShells.<app>`                     | The development shells of the repository and of every application |
 | `extensions.<system>.open-vsx.alonsodomin.blueforest-theme`  | The same shape `nix-vscode-extensions` uses            |
@@ -142,6 +146,8 @@ it:
 * The package is `blueforest-vscode-theme`.
 * The extension is `alonsodomin.blueforest-theme`.
 * The theme inside the editor is `BlueForest`. Select it with `"workbench.colorTheme": "BlueForest"`.
+* The Starship packages are `blueforest-starship-preset` and `blueforest-starship`.
+* The Starship preset is `blueforest`. Select it with `programs.starship.presets = [ "blueforest" ];`.
 
 ### Checks
 
@@ -161,7 +167,10 @@ nix build .#vscode-integration-check
 The extension is built from the sources in the `apps/vscode/` directory with `vsce`, the same tool the release
 uses, so the version in `apps/vscode/package.json` is the version that gets installed. `nix flake check`
 verifies that the installed theme is identical to the one in `apps/vscode/themes/`, and that every
-application carries the version of the repository.
+application carries the version of the repository. The Starship preset is compared with
+`apps/starship/themes/blueforest.toml` and rendered with the actual `starship` binary. The overlay of
+the repository is applied to a nixpkgs instance, and the packages of every application are looked up
+in the result, the way a consumer gets them.
 
 Every application can be checked on its own, the way a consumer that installs only one of them
 gets it:
@@ -169,6 +178,7 @@ gets it:
 ```console
 nix flake check ./apps/vscode
 nix flake check ./apps/bat
+nix flake check ./apps/starship
 ```
 
 ### The theme for bat
@@ -191,6 +201,37 @@ Two things are left to the user: bat itself has to be enabled (`programs.bat.ena
 and the theme has to be selected (`programs.bat.settings.theme = "BlueForest";` on NixOS,
 `programs.bat.config.theme = "BlueForest";` on Home Manager). The name of the theme is
 `BlueForest`, the name of the file.
+
+### The theme for Starship
+
+The preset is `blueforest.toml`, named `blueforest` the way Starship names its presets, and it is
+packaged twice:
+
+- `blueforest-starship-preset` carries the preset at its root and in
+  `share/starship/presets/blueforest.toml`, where Starship looks for its presets.
+- `blueforest-starship` is Starship with the preset bundled, so that Home Manager can select it by
+  name.
+
+The overlay leaves `pkgs.starship` untouched. With the module applied, enable Starship and select
+the bundled package and preset:
+
+```nix
+programs.starship = {
+  enable = true;
+  package = pkgs.blueforest-starship;
+  presets = [ "blueforest" ];
+};
+```
+
+If you only want the preset file, read it directly without replacing the Starship package:
+
+```nix
+programs.starship.settings = builtins.fromTOML (
+  builtins.readFile "${pkgs.blueforest-starship-preset}/blueforest.toml"
+);
+```
+
+The prompt uses Nerd Font glyphs, so the terminal needs a Nerd Font.
 
 ## Working with these sources
 
@@ -216,14 +257,15 @@ The development shell of an application comes with the tools that application is
 
 ```console
 nix develop .#vscode
+nix develop .#starship
 ```
 
 ### Releases
 
 Releases are managed by the tooling here, you can trigger a release by either running `nix run .#release -- vscode` or by simply running `release vscode` from the previously mentioned shell.
 
-The release helper takes the name of the application to release, or `all` for every application of
-the repository:
+The release helper takes the name of the application to release, or `all` for every application that
+has a release script (`vscode` and `starship`):
 
 ```console
 release vscode
