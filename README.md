@@ -27,10 +27,10 @@ configuration lives in a directory of its own:
 
 | Application | Directory  | Status                     |
 | ----------- | ---------- | -------------------------- |
-| VS Code     | `apps/vscode/`   | available                  |
-| bat         | `apps/bat/`       | available                  |
-| Neovim      | `apps/neovim/`   | planned                    |
-| Starship    | `apps/starship/` | available                  |
+| VS Code     | `modules/vscode/`   | available                  |
+| bat         | `modules/bat/`       | available                  |
+| Neovim      | `modules/neovim/`   | planned                    |
+| Starship    | `modules/starship/` | available                  |
 
 Every directory is self-contained: it holds the theme itself, the packaging of
 it, the module that installs it and its own changelog. That way a consumer can
@@ -92,7 +92,7 @@ them does not have to take the others:
 
 ```nix
 {
-  inputs.blueforest-vscode.url = "github:alonsodomin/blueforest-theme?dir=apps/vscode";
+  inputs.blueforest-vscode.url = "github:alonsodomin/blueforest-theme?dir=modules/vscode";
 
   outputs =
     { nixpkgs, blueforest-vscode, ... }:
@@ -106,7 +106,7 @@ them does not have to take the others:
 }
 ```
 
-The same works for `?dir=apps/starship`; it will work for `?dir=apps/neovim` once it is written.
+The same works for `?dir=modules/starship`; it will work for `?dir=modules/neovim` once it is written.
 
 ### Outputs
 
@@ -164,11 +164,11 @@ It can also be built on its own:
 nix build .#vscode-integration-check
 ```
 
-The extension is built from the sources in the `apps/vscode/` directory with `vsce`, the same tool the release
-uses, so the version in `apps/vscode/package.json` is the version that gets installed. `nix flake check`
-verifies that the installed theme is identical to the one in `apps/vscode/themes/`, and that every
+The extension is built from the sources in the `modules/vscode/` directory with `vsce`, the same tool the release
+uses, so the version in `modules/vscode/package.json` is the version that gets installed. `nix flake check`
+verifies that the installed theme is identical to the one in `modules/vscode/themes/`, and that every
 application carries the version of the repository. The Starship preset is compared with
-`apps/starship/themes/blueforest.toml` and rendered with the actual `starship` binary. The overlay of
+`modules/starship/themes/blueforest.toml` and rendered with the actual `starship` binary. The overlay of
 the repository is applied to a nixpkgs instance, and the packages of every application are looked up
 in the result, the way a consumer gets them.
 
@@ -176,9 +176,9 @@ Every application can be checked on its own, the way a consumer that installs on
 gets it:
 
 ```console
-nix flake check ./apps/vscode
-nix flake check ./apps/bat
-nix flake check ./apps/starship
+nix flake check ./modules/vscode
+nix flake check ./modules/bat
+nix flake check ./modules/starship
 ```
 
 ### The theme for bat
@@ -284,7 +284,7 @@ application brings a workflow of its own, and a job in `release.yml` that calls 
 An application is a directory with the theme, the packaging of it and a flake of its own:
 
 ```
-apps/neovim/
+modules/neovim/
 ├── flake.nix            # the application as a flake of its own
 ├── flake-module.nix     # the application as a flake-parts module
 ├── devshell.toml        # the development shell of the application
@@ -298,7 +298,7 @@ checks, its development shell, its overlay and its modules. The flake of the
 application imports it and publishes it, so that the root flake can compose it:
 
 ```nix
-# apps/neovim/flake.nix
+# modules/neovim/flake.nix
 outputs =
   inputs@{ flake-parts, ... }:
   flake-parts.lib.mkFlake { inherit inputs; } (
@@ -322,7 +322,7 @@ on its own and together with the other applications:
 ```nix
 inputs = {
   neovim = {
-    url = "path:./apps/neovim";
+    url = "path:./modules/neovim";
     inputs.nixpkgs.follows = "nixpkgs";
     inputs.flake-parts.follows = "flake-parts";
     inputs.devshell.follows = "devshell";
@@ -343,7 +343,7 @@ The release of the application lives in `tools/lib/neovim.sh`, and its workflow 
 
 ## License
 
-The theme — the colour schemes in `apps/*/themes/`, the images and the documentation — is licensed
+The theme — the colour schemes in `modules/*/themes/`, the images and the documentation — is licensed
 under the [Creative Commons Attribution 4.0 International licence][cc-by-4.0].
 
 The code that packages it — the Nix expressions, the shell scripts, the CI workflows and the

@@ -17,11 +17,11 @@ jobs:
       - name: Setup
         id: setup
         run: |
-          version=$(cat apps/bat/VERSION)
+          version=$(cat modules/bat/VERSION)
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Package the theme
-        run: cp apps/bat/themes/BlueForest.tmTheme ./blueforest-bat-theme-${{ steps.setup.outputs.version }}.tmTheme
+        run: cp modules/bat/themes/BlueForest.tmTheme ./blueforest-bat-theme-${{ steps.setup.outputs.version }}.tmTheme
 
       - uses: actions/upload-artifact@v4
         with:

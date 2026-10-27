@@ -15,7 +15,7 @@ pkgs.runCommand "blueforest-version-check"
 
     expected=$(cat VERSION)
 
-    for file in apps/*/VERSION; do
+    for file in modules/*/VERSION; do
       actual=$(cat "$file")
       if [ "$actual" != "$expected" ]; then
         echo "$file has version $actual, the repository has $expected" >&2
@@ -23,7 +23,7 @@ pkgs.runCommand "blueforest-version-check"
       fi
     done
 
-    for file in apps/*/package.json; do
+    for file in modules/*/package.json; do
       actual=$(jq -r '.version' "$file")
       if [ "$actual" != "$expected" ]; then
         echo "$file has version $actual, the repository has $expected" >&2

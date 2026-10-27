@@ -16,7 +16,7 @@
     # Adding an application is a matter of adding a directory and a line
     # here.
     vscode = {
-      url = "path:./apps/vscode";
+      url = "path:./modules/vscode";
 
       # The repository pins the inputs of its applications, so that every
       # application is built with the same nixpkgs.
@@ -27,14 +27,14 @@
     };
 
     bat = {
-      url = "path:./apps/bat";
+      url = "path:./modules/bat";
 
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
     };
 
     starship = {
-      url = "path:./apps/starship";
+      url = "path:./modules/starship";
 
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
@@ -78,6 +78,19 @@
             config.flake.overlays.vscode
             config.flake.overlays.starship
           ];
+
+          flakeModules = {
+            bat = inputs.bat.flakeModule;
+            starship = inputs.starship.flakeModule;
+            vscode = inputs.vscode.flakeModule;
+            default = {
+              imports = [
+                inputs.bat.flakeModule
+                inputs.starship.flakeModule
+                inputs.vscode.flakeModule
+              ];
+            };
+          };
 
           nixosModules.default = {
             imports = [
@@ -123,12 +136,6 @@
                 "blueforest-starship-preset"
                 "blueforest-starship"
               ];
-            };
-
-            apps.release = {
-              type = "app";
-              program = "${release}/bin/release";
-              meta.description = "Interactive release helper";
             };
           };
       }

@@ -17,7 +17,7 @@ format of each tool.
 - **Creator:** mathias[at]decodified[dot]com
 - **Source:** <https://github.com/sirthias/BlueForest>
 - **Original licence:** [CC BY 3.0 Unported][cc-by-3.0]
-- **Changes:** ported to the configuration format of each tool in `apps/`
+- **Changes:** ported to the configuration format of each tool in `modules/`
 
 The material is provided as is and without warranties of any kind. The
 disclaimer of warranties is Section 5 of the CC BY 4.0 legal code, which is in
@@ -34,11 +34,11 @@ CI workflows and the manifests — is licensed under the
 
 | Path | Licence |
 | --- | --- |
-| `apps/*/themes/**` | CC BY 4.0 |
+| `modules/*/themes/**` | CC BY 4.0 |
 | `assets/**` | CC BY 4.0 |
-| `*.png`, `apps/*/*.png` | CC BY 4.0 |
-| `*.md`, `apps/*/*.md` | CC BY 4.0 |
-| `LICENSE`, `LICENSES/**`, `apps/*/LICENSE` | the licence text itself |
+| `*.png`, `modules/*/*.png` | CC BY 4.0 |
+| `*.md`, `modules/*/*.md` | CC BY 4.0 |
+| `LICENSE`, `LICENSES/**`, `modules/*/LICENSE` | the licence text itself |
 | everything else | MPL-2.0 |
 
 ## Copyright

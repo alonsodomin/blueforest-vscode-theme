@@ -19,9 +19,9 @@ jobs:
         # install just one of them.
         flake:
           - "."
-          - "./apps/vscode"
-          - "./apps/bat"
-          - "./apps/starship"
+          - "./modules/vscode"
+          - "./modules/bat"
+          - "./modules/starship"
     steps:
       - uses: actions/checkout@v4
 

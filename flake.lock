@@ -10,11 +10,11 @@
         ]
       },
       "locked": {
-        "path": "./apps/bat",
+        "path": "./modules/bat",
         "type": "path"
       },
       "original": {
-        "path": "./apps/bat",
+        "path": "./modules/bat",
         "type": "path"
       },
       "parent": []
@@ -177,11 +177,11 @@
         ]
       },
       "locked": {
-        "path": "./apps/starship",
+        "path": "./modules/starship",
         "type": "path"
       },
       "original": {
-        "path": "./apps/starship",
+        "path": "./modules/starship",
         "type": "path"
       },
       "parent": []
@@ -220,11 +220,11 @@
         ]
       },
       "locked": {
-        "path": "./apps/vscode",
+        "path": "./modules/vscode",
         "type": "path"
       },
       "original": {
-        "path": "./apps/vscode",
+        "path": "./modules/vscode",
         "type": "path"
       },
       "parent": []
