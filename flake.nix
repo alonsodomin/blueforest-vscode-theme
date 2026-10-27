@@ -83,6 +83,13 @@
             bat = inputs.bat.flakeModule;
             starship = inputs.starship.flakeModule;
             vscode = inputs.vscode.flakeModule;
+            default = {
+              imports = [
+                inputs.bat.flakeModule
+                inputs.starship.flakeModule
+                inputs.vscode.flakeModule
+              ];
+            };
           };
 
           nixosModules.default = {
