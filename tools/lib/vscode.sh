@@ -18,7 +18,7 @@ set -euo pipefail
 
 app_name="vscode"
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-app_dir="$repo_root/apps/$app_name"
+app_dir="$repo_root/modules/$app_name"
 
 OVSX_API="https://open-vsx.org/api"
 
@@ -89,9 +89,9 @@ changelog_has() {
 show_diff() {
 	printf '\nChanges to be committed:\n'
 	git -C "$repo_root" --no-pager diff --stat -- \
-		"apps/$app_name/package.json" "apps/$app_name/CHANGELOG.md"
+		"modules/$app_name/package.json" "modules/$app_name/CHANGELOG.md"
 	git -C "$repo_root" --no-pager diff -- \
-		"apps/$app_name/package.json" "apps/$app_name/CHANGELOG.md"
+		"modules/$app_name/package.json" "modules/$app_name/CHANGELOG.md"
 }
 
 # --------------------------------------------------------------------------
@@ -235,6 +235,6 @@ fi
 # 4. stage the changes
 # --------------------------------------------------------------------------
 
-git -C "$repo_root" add "apps/$app_name/package.json" "apps/$app_name/CHANGELOG.md"
+git -C "$repo_root" add "modules/$app_name/package.json" "modules/$app_name/CHANGELOG.md"
 
 printf '\n%s is ready for the release.\n' "$version"

@@ -47,7 +47,7 @@ jobs:
             experimental-features = nix-command flakes
 
       - name: Run flake checks
-        run: nix flake check ./apps/vscode
+        run: nix flake check ./modules/vscode
 
   package:
     name: Package
@@ -63,28 +63,28 @@ jobs:
           node-version: 24
 
       - name: Install dependencies
-        working-directory: apps/vscode
+        working-directory: modules/vscode
         run: npm i
 
       - name: Setup package path
         id: setup
-        working-directory: apps/vscode
+        working-directory: modules/vscode
         run: echo "packageName=$(node -e "console.log(require('./package.json').name + '-' + require('./package.json').version + '.vsix')")" >> "$GITHUB_OUTPUT"
 
       - name: Package
-        working-directory: apps/vscode
+        working-directory: modules/vscode
         run: npx @vscode/vsce package --out ${{ steps.setup.outputs.packageName }}
 
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.setup.outputs.packageName }}
-          path: ./apps/vscode/${{ steps.setup.outputs.packageName }}
+          path: ./modules/vscode/${{ steps.setup.outputs.packageName }}
           if-no-files-found: error
 
       - name: Setup tag
         id: setup-tag
         run: |
-          version=$(jq -r .version ./apps/vscode/package.json)
+          version=$(jq -r .version ./modules/vscode/package.json)
           echo "tag: vscode/$version"
           echo "tag=vscode/$version" >> "$GITHUB_OUTPUT"
           echo "version=$version" >> "$GITHUB_OUTPUT"

@@ -18,7 +18,7 @@ jobs:
             experimental-features = nix-command flakes
 
       - name: Run flake checks
-        run: nix flake check ./apps/starship
+        run: nix flake check ./modules/starship
 
   package:
     name: Package
@@ -33,13 +33,13 @@ jobs:
       - name: Setup
         id: setup
         run: |
-          version=$(cat apps/starship/VERSION)
+          version=$(cat modules/starship/VERSION)
           echo "tag: starship/$version"
           echo "tag=starship/$version" >> "$GITHUB_OUTPUT"
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Package the preset
-        run: cp apps/starship/themes/blueforest.toml ./blueforest-starship-preset-${{ steps.setup.outputs.version }}.toml
+        run: cp modules/starship/themes/blueforest.toml ./blueforest-starship-preset-${{ steps.setup.outputs.version }}.toml
 
       - uses: actions/upload-artifact@v4
         with:
