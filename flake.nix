@@ -79,6 +79,12 @@
             config.flake.overlays.starship
           ];
 
+          flakeModules = {
+            bat = inputs.bat.flakeModule;
+            starship = inputs.starship.flakeModule;
+            vscode = inputs.vscode.flakeModule;
+          };
+
           nixosModules.default = {
             imports = [
               config.flake.nixosModules.vscode
@@ -123,12 +129,6 @@
                 "blueforest-starship-preset"
                 "blueforest-starship"
               ];
-            };
-
-            apps.release = {
-              type = "app";
-              program = "${release}/bin/release";
-              meta.description = "Interactive release helper";
             };
           };
       }
