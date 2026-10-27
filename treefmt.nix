@@ -28,12 +28,12 @@
 
     # The scripts of the repository are indented with tabs.
     indent_size = 0;
-
-    # The scripts are written the way they are, without the simplifications
-    # of shfmt.
-    simplify = false;
   };
 
   # shellcheck exits non-zero on findings, which makes treefmt fail the run.
-  programs.shellcheck.enable = true;
+  programs.shellcheck = {
+    enable = true;
+
+    excludes = [ ".envrc" ];
+  };
 }
