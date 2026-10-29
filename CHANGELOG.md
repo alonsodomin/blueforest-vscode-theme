@@ -24,6 +24,8 @@ Every configuration of the repository shares one version, which lives in
 - The BlueForest theme now includes a theme for OpenCode, packaged as
   `blueforest-opencode-theme`. It is the format OpenCode 2 reads, and the
   Home Manager module selects it through the settings of the terminal
+- The theme for OpenCode has a yellow hue for the variables and the emphasis,
+  and the categorical palette of the agents counts it
 - The overlay of the repository adds the packages of every application again:
   it was composed by hand, which lost one of the two arguments an overlay
   takes, and it did not add anything

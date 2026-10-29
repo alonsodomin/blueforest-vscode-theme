@@ -7,6 +7,19 @@ The theme is the one OpenCode 2 reads: the tokens of the `base`, shared by
 every mode, and the palette of the `dark` mode. It is a dark theme, so it
 defines that mode only, and OpenCode uses it when another one is asked for.
 
+The palette has a hue for every colour the theme uses: the neutrals, the
+blues of the keywords, the greens of the strings, the ambers of the operators,
+the reds of the numbers, and the yellows of the variables and of the emphasis.
+The two yellows of BlueForest are the pale one of the variables and the vivid
+one of the constants, and the hue carries both of them, together with the
+golds the other ports of the theme use for their headings and their status
+bars.
+
+A theme OpenCode cannot read is a theme OpenCode ignores: it falls back to
+the theme it ships with, without a word. That is why the checks of this
+application make sure that the theme has every token OpenCode reads, and that
+every colour of it that is a reference resolves.
+
 The package `blueforest-opencode-theme` carries the theme at its root and in
 `share/opencode/themes/`, which is where OpenCode looks for the themes.
 

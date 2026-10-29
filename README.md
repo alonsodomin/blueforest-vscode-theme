@@ -175,10 +175,10 @@ uses, so the version in `modules/vscode/package.json` is the version that gets i
 verifies that the installed theme is identical to the one in `modules/vscode/themes/`, and that every
 application carries the version of the repository. The Starship preset is compared with
 `modules/starship/themes/blueforest.toml` and rendered with the actual `starship` binary. The theme of OpenCode is
-compared with `modules/opencode/themes/blueforest.json`, every colour of it is resolved, and the configuration of the
-README is evaluated against Home Manager to see that the theme ends up where OpenCode reads it and that the settings of
-the terminal select it. The overlay of the repository is applied to a nixpkgs instance, and the packages of every
-application are looked up in the result, the way a consumer gets them.
+compared with `modules/opencode/themes/blueforest.json`, checked to have every token OpenCode reads and every colour
+of it resolved, and the configuration of the README is evaluated against Home Manager to see that the theme ends up
+where OpenCode reads it and that the settings of the terminal select it. The overlay of the repository is applied to a
+nixpkgs instance, and the packages of every application are looked up in the result, the way a consumer gets them.
 
 Every application can be checked on its own, the way a consumer that installs only one of them
 gets it:

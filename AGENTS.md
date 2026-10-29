@@ -33,6 +33,7 @@
 - The OpenCode module needs `programs.opencode.cli`, which Home Manager gained in commit `6d9655f764`; the `home-manager` input of the root flake is pinned to a revision that has it.
 - The OpenCode module does not enable OpenCode: Home Manager writes the theme and the settings of the terminal only when the program is enabled, so the consumer decides.
 - Home Manager's `programs.opencode.themes` only takes a path, never a store path string: give it a path literal, or the theme is taken for a JSON object and regenerated.
+- OpenCode ignores a theme it cannot read, and it ignores it silently: a missing token or a colour that does not resolve makes it fall back to the theme it ships with. The checks of the application stand in for it, because a TUI cannot be rendered in a build.
 - The root `overlays.default` composes with `lib.composeManyExtensions`, not by hand: an overlay takes `final` and `prev`, and folding them by hand loses one of the two. `tests/overlay.nix` guards the result.
 
 ## Adding an application

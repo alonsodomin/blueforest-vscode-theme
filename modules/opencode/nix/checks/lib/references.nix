@@ -6,8 +6,9 @@
 # "transparent", or a reference to another colour of the theme, written as
 # "$" followed by the path to it.
 #
-# A reference that does not resolve is one OpenCode silently replaces with a
-# default colour, so the theme has to be checked before it is shipped.
+# A reference that does not resolve makes OpenCode discard the whole theme
+# and fall back to the one it ships with, without a word. So the theme has to
+# be checked before it is shipped.
 {
   lib,
   # The theme, as it was read.
