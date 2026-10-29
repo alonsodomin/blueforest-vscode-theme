@@ -3,7 +3,17 @@
 [devshell]
 name = "blueforest"
 # The tools below mirror the runtimeInputs of the `release` app in flake.nix.
-packages = ["coreutils", "gawk", "gnused", "gnugrep", "git", "curl", "jq", "gh", "tokei"]
+packages = [
+  "coreutils",
+  "gawk",
+  "gnused",
+  "gnugrep",
+  "git",
+  "curl",
+  "jq",
+  "gh",
+  "tokei",
+]
 
 [[commands]]
 name = "release"
