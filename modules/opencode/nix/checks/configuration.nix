@@ -10,7 +10,7 @@
   module,
 }:
 let
-  evaluated = import ../modules/check.nix {
+  evaluated = import ./lib/evaluation.nix {
     inherit
       lib
       pkgs

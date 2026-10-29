@@ -1,0 +1,328 @@
+# SPDX-License-Identifier: MPL-2.0
+#
+# The tokens of a theme of OpenCode that the theme does not have.
+#
+# A theme is a tree of semantic tokens, and OpenCode reads every one of them.
+# A theme that misses one is not a theme with a hole: it is a theme OpenCode
+# ignores, and it ignores it without a word, falling back to the theme it
+# ships with.
+#
+# The tokens are the ones the documentation of OpenCode lists. Two of them
+# are not in the list, because OpenCode has a default for them:
+#
+#   - `text.faint` defaults to `text.muted`.
+#   - The interaction states of an action and of a form field default to the
+#     base colour of the action.
+{
+  lib,
+  # The theme, as it was read.
+  theme,
+}:
+let
+  # The mode of the theme. It is a dark theme, so it has one mode.
+  mode = if (theme ? dark) then theme.dark else (theme.light or { });
+
+  # The tokens of the base, the ones OpenCode reads.
+  tokens = [
+    [
+      "background"
+      "action"
+      "destructive"
+      "base"
+    ]
+    [
+      "background"
+      "action"
+      "primary"
+      "base"
+    ]
+    [
+      "background"
+      "action"
+      "secondary"
+      "base"
+    ]
+    [
+      "background"
+      "base"
+    ]
+    [
+      "background"
+      "feedback"
+      "error"
+      "base"
+    ]
+    [
+      "background"
+      "feedback"
+      "info"
+      "base"
+    ]
+    [
+      "background"
+      "feedback"
+      "success"
+      "base"
+    ]
+    [
+      "background"
+      "feedback"
+      "warning"
+      "base"
+    ]
+    [
+      "background"
+      "formfield"
+      "base"
+    ]
+    [
+      "background"
+      "raised"
+      "base"
+    ]
+    [
+      "background"
+      "raised"
+      "high"
+    ]
+    [
+      "background"
+      "raised"
+      "max"
+    ]
+    [
+      "border"
+      "base"
+    ]
+    [
+      "diff"
+      "background"
+      "added"
+    ]
+    [
+      "diff"
+      "background"
+      "context"
+    ]
+    [
+      "diff"
+      "background"
+      "removed"
+    ]
+    [
+      "diff"
+      "highlight"
+      "added"
+    ]
+    [
+      "diff"
+      "highlight"
+      "removed"
+    ]
+    [
+      "diff"
+      "lineNumber"
+      "background"
+      "added"
+    ]
+    [
+      "diff"
+      "lineNumber"
+      "background"
+      "removed"
+    ]
+    [
+      "diff"
+      "lineNumber"
+      "text"
+    ]
+    [
+      "diff"
+      "text"
+      "added"
+    ]
+    [
+      "diff"
+      "text"
+      "context"
+    ]
+    [
+      "diff"
+      "text"
+      "hunkHeader"
+    ]
+    [
+      "diff"
+      "text"
+      "removed"
+    ]
+    [
+      "markdown"
+      "blockQuote"
+    ]
+    [
+      "markdown"
+      "code"
+    ]
+    [
+      "markdown"
+      "codeBlock"
+    ]
+    [
+      "markdown"
+      "emphasis"
+    ]
+    [
+      "markdown"
+      "heading"
+    ]
+    [
+      "markdown"
+      "horizontalRule"
+    ]
+    [
+      "markdown"
+      "image"
+    ]
+    [
+      "markdown"
+      "imageText"
+    ]
+    [
+      "markdown"
+      "link"
+    ]
+    [
+      "markdown"
+      "linkText"
+    ]
+    [
+      "markdown"
+      "listEnumeration"
+    ]
+    [
+      "markdown"
+      "listItem"
+    ]
+    [
+      "markdown"
+      "strong"
+    ]
+    [
+      "markdown"
+      "text"
+    ]
+    [
+      "scrollbar"
+      "base"
+    ]
+    [
+      "syntax"
+      "comment"
+    ]
+    [
+      "syntax"
+      "function"
+    ]
+    [
+      "syntax"
+      "keyword"
+    ]
+    [
+      "syntax"
+      "number"
+    ]
+    [
+      "syntax"
+      "operator"
+    ]
+    [
+      "syntax"
+      "punctuation"
+    ]
+    [
+      "syntax"
+      "string"
+    ]
+    [
+      "syntax"
+      "type"
+    ]
+    [
+      "syntax"
+      "variable"
+    ]
+    [
+      "text"
+      "action"
+      "destructive"
+      "base"
+    ]
+    [
+      "text"
+      "action"
+      "primary"
+      "base"
+    ]
+    [
+      "text"
+      "action"
+      "secondary"
+      "base"
+    ]
+    [
+      "text"
+      "base"
+    ]
+    [
+      "text"
+      "feedback"
+      "error"
+      "base"
+    ]
+    [
+      "text"
+      "feedback"
+      "info"
+      "base"
+    ]
+    [
+      "text"
+      "feedback"
+      "success"
+      "base"
+    ]
+    [
+      "text"
+      "feedback"
+      "warning"
+      "base"
+    ]
+    [
+      "text"
+      "formfield"
+      "base"
+    ]
+    [
+      "text"
+      "muted"
+    ]
+  ];
+
+  # The aliases of the hues of the mode. OpenCode reads them, and nothing in
+  # the theme refers to them, so nothing else would notice their absence.
+  aliases = [
+    [ "accent" ]
+    [ "interactive" ]
+    [ "neutral" ]
+  ];
+
+  # The tokens the theme does not have.
+  missingTokens = lib.filter (path: !(lib.hasAttrByPath path (theme.base or { }))) tokens;
+
+  # And the aliases the mode does not have.
+  missingAliases = lib.filter (path: !(lib.hasAttrByPath path (mode.hue or { }))) aliases;
+in
+{
+  inherit missingAliases missingTokens;
+}
