@@ -31,6 +31,7 @@ configuration lives in a directory of its own:
 | bat         | `modules/bat/`       | available                  |
 | Neovim      | `modules/neovim/`   | planned                    |
 | Starship    | `modules/starship/` | available                  |
+| OpenCode    | `modules/opencode/` | available                  |
 
 Every directory is self-contained: it holds the theme itself, the packaging of
 it, the module that installs it and its own changelog. That way a consumer can
@@ -120,12 +121,15 @@ combined ones:
 | `packages.<system>.blueforest-bat-theme`                   | The theme for bat                                      |
 | `packages.<system>.blueforest-starship-preset`             | The preset for Starship                                |
 | `packages.<system>.blueforest-starship`                    | Starship with the preset bundled                       |
+| `packages.<system>.blueforest-opencode-theme`              | The theme for OpenCode                                 |
 | `overlays.default`                                          | Adds the packages of every application to a nixpkgs instance |
 | `overlays.vscode`                                           | Adds `pkgs.blueforest-vscode-theme` to a nixpkgs instance |
 | `overlays.starship`                                         | Adds `pkgs.blueforest-starship-preset` and `pkgs.blueforest-starship` to a nixpkgs instance |
+| `overlays.opencode`                                         | Adds `pkgs.blueforest-opencode-theme` to a nixpkgs instance |
 | `nixosModules.default`, `homeModules.default`              | The modules of every application                       |
 | `nixosModules.vscode`, `homeModules.vscode`                 | The module of the VS Code theme                        |
 | `nixosModules.starship`, `homeModules.starship`             | The module of the Starship preset                      |
+| `nixosModules.opencode`, `homeModules.opencode`             | The module of the OpenCode theme                       |
 | `checks.<system>.<app>-<check>`                             | The checks of every application                        |
 | `devShells.default`, `devShells.<app>`                     | The development shells of the repository and of every application |
 | `extensions.<system>.open-vsx.alonsodomin.blueforest-theme`  | The same shape `nix-vscode-extensions` uses            |
@@ -148,6 +152,8 @@ it:
 * The theme inside the editor is `BlueForest`. Select it with `"workbench.colorTheme": "BlueForest"`.
 * The Starship packages are `blueforest-starship-preset` and `blueforest-starship`.
 * The Starship preset is `blueforest`. Select it with `programs.starship.presets = [ "blueforest" ];`.
+* The OpenCode package is `blueforest-opencode-theme`.
+* The theme inside OpenCode is `blueforest`, the name of the file. Select it with `programs.opencode.cli.theme = { name = "blueforest"; mode = "dark"; };`.
 
 ### Checks
 
@@ -168,9 +174,11 @@ The extension is built from the sources in the `modules/vscode/` directory with 
 uses, so the version in `modules/vscode/package.json` is the version that gets installed. `nix flake check`
 verifies that the installed theme is identical to the one in `modules/vscode/themes/`, and that every
 application carries the version of the repository. The Starship preset is compared with
-`modules/starship/themes/blueforest.toml` and rendered with the actual `starship` binary. The overlay of
-the repository is applied to a nixpkgs instance, and the packages of every application are looked up
-in the result, the way a consumer gets them.
+`modules/starship/themes/blueforest.toml` and rendered with the actual `starship` binary. The theme of OpenCode is
+compared with `modules/opencode/themes/blueforest.json`, every colour of it is resolved, and the configuration of the
+README is evaluated against Home Manager to see that the theme ends up where OpenCode reads it and that the settings of
+the terminal select it. The overlay of the repository is applied to a nixpkgs instance, and the packages of every
+application are looked up in the result, the way a consumer gets them.
 
 Every application can be checked on its own, the way a consumer that installs only one of them
 gets it:
@@ -179,6 +187,7 @@ gets it:
 nix flake check ./modules/vscode
 nix flake check ./modules/bat
 nix flake check ./modules/starship
+nix flake check ./modules/opencode
 ```
 
 ### The theme for bat
@@ -233,6 +242,52 @@ programs.starship.settings = builtins.fromTOML (
 
 The prompt uses Nerd Font glyphs, so the terminal needs a Nerd Font.
 
+### The theme for OpenCode
+
+The theme is `blueforest.json`, named `blueforest` the way OpenCode names a custom theme: the name of the
+theme is the name of the file. It is the format OpenCode 2 reads, the tokens of the `base` and the palette of
+the `dark` mode. It is a dark theme, so it defines that mode only, and OpenCode uses it when another one is
+asked for.
+
+The theme is part of the configuration of OpenCode, so the Home Manager module installs it:
+
+```nix
+{
+  imports = [
+    blueforest.homeModules.default
+  ];
+
+  programs.opencode.enable = true;
+}
+```
+
+The module does not enable OpenCode: whether the program is installed at all stays your decision. It puts the
+theme in `~/.config/opencode/themes/blueforest.json`, and selects it in `~/.config/opencode/cli.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/v2/cli.json",
+  "theme": {
+    "name": "blueforest",
+    "mode": "dark"
+  }
+}
+```
+
+Those are the settings of OpenCode 2, the ones `cli.json` holds. OpenCode 1 reads `tui.json` instead, and this
+theme does not support it.
+
+The package `blueforest-opencode-theme` carries the theme at its root and in `share/opencode/themes/`, for the
+consumers that want the file itself, e.g. to put it in the themes directory of a project
+(`.opencode/themes/`):
+
+```nix
+home.packages = [ pkgs.blueforest-opencode-theme ];
+```
+
+The NixOS module only adds the overlay: OpenCode reads the configuration of the user, and there is no
+system-wide directory it reads.
+
 ## Working with these sources
 
 This repository comes with a Nix flake that sets up a development shell that comes with its own help menu regarding commands available. Simply run `nix develop` at the root of this repository and you'll see the following:
@@ -258,6 +313,7 @@ The development shell of an application comes with the tools that application is
 ```console
 nix develop .#vscode
 nix develop .#starship
+nix develop .#opencode
 ```
 
 ### Releases
@@ -265,7 +321,7 @@ nix develop .#starship
 Releases are managed by the tooling here, you can trigger a release by either running `nix run .#release -- vscode` or by simply running `release vscode` from the previously mentioned shell.
 
 The release helper takes the name of the application to release, or `all` for every application that
-has a release script (`vscode` and `starship`):
+has a release script (`vscode`, `starship` and `opencode`):
 
 ```console
 release vscode

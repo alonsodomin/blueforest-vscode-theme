@@ -10,6 +10,7 @@ its own changelog:
 | VS Code    | [modules/vscode/CHANGELOG.md](modules/vscode/CHANGELOG.md) |
 | bat        | [modules/bat/CHANGELOG.md](modules/bat/CHANGELOG.md) |
 | Starship   | [modules/starship/CHANGELOG.md](modules/starship/CHANGELOG.md) |
+| OpenCode   | [modules/opencode/CHANGELOG.md](modules/opencode/CHANGELOG.md) |
 
 Every configuration of the repository shares one version, which lives in
 [VERSION](VERSION).
@@ -20,6 +21,9 @@ Every configuration of the repository shares one version, which lives in
   and the code that packages them under MPL-2.0
 - The BlueForest theme now includes a Starship preset, packaged as
   `blueforest-starship-preset` and `blueforest-starship`
+- The BlueForest theme now includes a theme for OpenCode, packaged as
+  `blueforest-opencode-theme`. It is the format OpenCode 2 reads, and the
+  Home Manager module selects it through the settings of the terminal
 - The overlay of the repository adds the packages of every application again:
   it was composed by hand, which lost one of the two arguments an overlay
   takes, and it did not add anything
