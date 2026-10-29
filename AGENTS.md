@@ -2,34 +2,37 @@
 
 ## Layout
 - Nix flake monorepo of BlueForest theme ports. `modules/<app>/` is a self-contained flake; its `flake-module.nix` is both imported by the app flake and published as `flakeModules.default` for the root `flake.nix` to compose.
-- Implemented apps: `modules/vscode` (VS Code/VSCodium extension), `modules/bat` (TextMate theme), and `modules/starship` (Starship preset). `modules/neovim` is a placeholder (`README.md` + `VERSION` only) and is not a root input.
+- Implemented apps: `modules/vscode` (VS Code/VSCodium extension), `modules/bat` (TextMate theme), `modules/starship` (Starship preset), and `modules/opencode` (OpenCode theme). `modules/neovim` is a placeholder (`README.md` + `VERSION` only) and is not a root input.
 - The VS Code extension is theme-only: `package.json` has no `main`, and there is no JS to build, test, or lint. Node and `vsce` are only for packaging.
-- Theme files are hand-edited sources, not generated: `modules/vscode/themes/Blueforest-color-theme.json`, `modules/bat/themes/BlueForest.tmTheme`, and `modules/starship/themes/blueforest.toml`. Checks compare packaged copies against them.
+- Theme files are hand-edited sources, not generated: `modules/vscode/themes/Blueforest-color-theme.json`, `modules/bat/themes/BlueForest.tmTheme`, `modules/starship/themes/blueforest.toml`, and `modules/opencode/themes/blueforest.json`. Checks compare packaged copies against them.
 - `README.md` is the consumer-facing contract (outputs, install snippets, identifiers). Update it when outputs or module behavior change.
 
 ## Verify
 - Format: `nix fmt` (nixfmt, taplo, prettier for `*.json`, shfmt with tabs, shellcheck).
-- Fast checks: `nix flake check` at the root (includes `treefmt`). Per app: `nix flake check ./modules/vscode`, `nix flake check ./modules/bat`, `nix flake check ./modules/starship`. CI runs all four.
-- Single check: `nix build .#checks.x86_64-linux.<name>`, where `<name>` is `version`, `overlay`, `treefmt`, `vscode-extension`, `vscode-configuration`, `bat-theme`, `bat-theme-home`, `bat-theme-nixos`, `starship-preset`, `starship-render`, `starship-wrapper`, or `starship-module`.
+- Fast checks: `nix flake check` at the root (includes `treefmt`). Per app: `nix flake check ./modules/vscode`, `nix flake check ./modules/bat`, `nix flake check ./modules/starship`, `nix flake check ./modules/opencode`. CI runs all five.
+- Single check: `nix build .#checks.x86_64-linux.<name>`, where `<name>` is `version`, `overlay`, `treefmt`, `vscode-extension`, `vscode-configuration`, `bat-theme`, `bat-theme-home`, `bat-theme-nixos`, `starship-preset`, `starship-render`, `starship-wrapper`, `starship-module`, `opencode-theme`, `opencode-configuration`, or `opencode-module`.
 - The VSCodium integration check is intentionally absent from `nix flake check`. Run `BLUEFOREST_VSCODE_INTEGRATION_CHECK=1 nix flake check --impure` or `nix build .#vscode-integration-check` (expensive).
 - Root flake evaluation only sees tracked files. `git add` new files before running `nix flake check` or `nix build .#...`.
-- Shells: `nix develop` (root tools + `release`), `nix develop .#vscode` (nodejs/vsce; provides `package`, `nixfmt`), `nix develop .#starship` (starship/taplo/nixfmt).
+- Shells: `nix develop` (root tools + `release`), `nix develop .#vscode` (nodejs/vsce; provides `package`, `nixfmt`), `nix develop .#starship` (starship/taplo/nixfmt), `nix develop .#opencode` (opencode/jq/nixfmt).
 
 ## Versions and releases
 - One shared version. `VERSION`, every `modules/*/VERSION`, and every `modules/*/package.json` must match (`tests/version.nix`). `modules/vscode` has no `VERSION` (package.json is its copy); the `neovim` placeholder `VERSION` file does exist, so include it in manual bumps.
 - Prefer the helper over hand-editing: `release vscode` from `nix develop`, or `nix run .#release -- vscode`. It is interactive, needs authenticated `gh` and network, pushes, and triggers CI; do not run it unattended.
-- The helper discovers applications from `tools/lib/*.sh`; `vscode.sh` and `starship.sh` exist. `release bat` fails and `release all` currently releases only VS Code and Starship. Bat versions/changelogs are edited by hand and published by `release-bat.yml`.
+- The helper discovers applications from `tools/lib/*.sh`; `vscode.sh`, `starship.sh`, and `opencode.sh` exist. `release bat` fails and `release all` currently releases only VS Code, Starship, and OpenCode. Bat versions/changelogs are edited by hand and published by `release-bat.yml`.
 - Changelogs: `modules/<app>/CHANGELOG.md`, newest section first, heading `## X.Y.Z - [DD-MM-YYYY]`. Root `CHANGELOG.md` links to the app changelogs and has an `Unreleased` section.
-- Release workflows: `.github/workflows/release.yml` dispatches to `release-<app>.yml`; tags are `vscode/<version>`, `bat/<version>`, `starship/<version>`.
+- Release workflows: `.github/workflows/release.yml` dispatches to `release-<app>.yml`; tags are `vscode/<version>`, `bat/<version>`, `starship/<version>`, `opencode/<version>`.
 
 ## Conventions and traps
 - Split licence: `modules/*/themes/**`, images, and `*.md` are CC BY 4.0; Nix, scripts, workflows, and manifests are MPL-2.0. New code/config files start with `# SPDX-License-Identifier: MPL-2.0`. `NOTICE.md` maps paths.
 - Shell is bash and uses tabs (`treefmt.nix`: shfmt `indent_size = 0`, `simplify = false`); shellcheck must pass.
-- Identifiers: theme ID `BlueForest`; extension ID `alonsodomin.blueforest-theme`; nixpkgs attr `blueforest-vscode-theme`; bat theme name `BlueForest`; Starship preset name `blueforest`; Starship packages `blueforest-starship-preset` and `blueforest-starship`. Note the lowercase `f` in `Blueforest-color-theme.json`.
+- Identifiers: theme ID `BlueForest`; extension ID `alonsodomin.blueforest-theme`; nixpkgs attr `blueforest-vscode-theme`; bat theme name `BlueForest`; Starship preset name `blueforest`; Starship packages `blueforest-starship-preset` and `blueforest-starship`; OpenCode theme name `blueforest`; OpenCode package `blueforest-opencode-theme`. Note the lowercase `f` in `Blueforest-color-theme.json`.
 - The VS Code module exists twice and must stay in sync: the exported modules in `modules/vscode/flake-module.nix`, and the copy evaluated by `vscode-configuration` in `modules/vscode/nix/modules/default.nix` (which imports `nix/overlay.nix`). The comment in `default.nix` names the old `pkgs.blueforest-theme`; the real attr is `pkgs.blueforest-vscode-theme`.
 - The VSIX build uses `vsce package --no-dependencies`; `.vscodeignore` decides what ships. Keep dev files out and add new runtime files explicitly. `*.vsix` is git-ignored.
 - `.vscode/launch.json` still points at the old `vscode/` path; don't rely on F5. Use `code --extensionDevelopmentPath=$PWD/modules/vscode` or package the VSIX.
-- Root aggregate modules are explicit: `flake.nix` currently composes the VS Code and Starship overlay/modules in `overlays.default` and `{nixos,home}Modules.default`; bat ships packages/checks only.
+- Root aggregate modules are explicit: `flake.nix` currently composes the VS Code, Starship, and OpenCode overlay/modules in `overlays.default` and `{nixos,home}Modules.default`; bat ships packages/checks only.
+- The OpenCode module needs `programs.opencode.cli`, which Home Manager gained in commit `6d9655f764`; the `home-manager` input of the root flake is pinned to a revision that has it.
+- The OpenCode module does not enable OpenCode: Home Manager writes the theme and the settings of the terminal only when the program is enabled, so the consumer decides.
+- Home Manager's `programs.opencode.themes` only takes a path, never a store path string: give it a path literal, or the theme is taken for a JSON object and regenerated.
 - The root `overlays.default` composes with `lib.composeManyExtensions`, not by hand: an overlay takes `final` and `prev`, and folding them by hand loses one of the two. `tests/overlay.nix` guards the result.
 
 ## Adding an application

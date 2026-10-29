@@ -22,6 +22,7 @@ jobs:
           - "./modules/vscode"
           - "./modules/bat"
           - "./modules/starship"
+          - "./modules/opencode"
     steps:
       - uses: actions/checkout@v4
 

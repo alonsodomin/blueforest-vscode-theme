@@ -41,6 +41,15 @@
       inputs.devshell.follows = "devshell";
       inputs.home-manager.follows = "home-manager";
     };
+
+    opencode = {
+      url = "path:./modules/opencode";
+
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+      inputs.devshell.follows = "devshell";
+      inputs.home-manager.follows = "home-manager";
+    };
   };
 
   outputs =
@@ -63,6 +72,7 @@
           inputs.vscode.flakeModule
           inputs.bat.flakeModule
           inputs.starship.flakeModule
+          inputs.opencode.flakeModule
         ];
 
         systems = [
@@ -77,17 +87,20 @@
           overlays.default = lib.composeManyExtensions [
             config.flake.overlays.vscode
             config.flake.overlays.starship
+            config.flake.overlays.opencode
           ];
 
           flakeModules = {
             bat = inputs.bat.flakeModule;
             starship = inputs.starship.flakeModule;
             vscode = inputs.vscode.flakeModule;
+            opencode = inputs.opencode.flakeModule;
             default = {
               imports = [
                 inputs.bat.flakeModule
                 inputs.starship.flakeModule
                 inputs.vscode.flakeModule
+                inputs.opencode.flakeModule
               ];
             };
           };
@@ -96,6 +109,7 @@
             imports = [
               config.flake.nixosModules.vscode
               config.flake.nixosModules.starship
+              config.flake.nixosModules.opencode
             ];
           };
 
@@ -103,6 +117,7 @@
             imports = [
               config.flake.homeModules.vscode
               config.flake.homeModules.starship
+              config.flake.homeModules.opencode
             ];
           };
         };
@@ -135,6 +150,7 @@
                 "blueforest-vscode-theme"
                 "blueforest-starship-preset"
                 "blueforest-starship"
+                "blueforest-opencode-theme"
               ];
             };
           };

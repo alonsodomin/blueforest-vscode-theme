@@ -22,6 +22,11 @@ on:
         type: boolean
         required: true
         default: "false"
+      publishOpencode:
+        description: "Publish the OpenCode theme"
+        type: boolean
+        required: true
+        default: "false"
       publishMS:
         description: "Publish to the Microsoft Marketplace"
         type: boolean
@@ -69,4 +74,10 @@ jobs:
     # A GitHub release only releases the application its tag belongs to.
     if: ${{ inputs.publishStarship == true || startsWith(github.event.release.tag_name || '', 'starship/') }}
     uses: ./.github/workflows/release-starship.yml
+    secrets: inherit
+  opencode:
+    name: OpenCode
+    # A GitHub release only releases the application its tag belongs to.
+    if: ${{ inputs.publishOpencode == true || startsWith(github.event.release.tag_name || '', 'opencode/') }}
+    uses: ./.github/workflows/release-opencode.yml
     secrets: inherit
