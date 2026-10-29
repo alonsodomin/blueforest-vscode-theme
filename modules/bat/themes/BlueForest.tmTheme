@@ -163,6 +163,19 @@
       </dict>
       <dict>
         <key>name</key>
+        <string>Keyword (Statement)</string>
+        <key>scope</key>
+        <string>meta.keyword</string>
+        <key>settings</key>
+        <dict>
+          <key>foreground</key>
+          <string>#0099FF</string>
+          <key>fontStyle</key>
+          <string>bold</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>name</key>
         <string>Function</string>
         <key>scope</key>
         <string>entity.name.function</string>
@@ -218,6 +231,17 @@
       </dict>
       <dict>
         <key>name</key>
+        <string>Type (Declaration)</string>
+        <key>scope</key>
+        <string>entity.name.struct, entity.name.trait, entity.name.union, entity.name.enum</string>
+        <key>settings</key>
+        <dict>
+          <key>foreground</key>
+          <string>#808000</string>
+        </dict>
+      </dict>
+      <dict>
+        <key>name</key>
         <string>Type (Built-in)</string>
         <key>scope</key>
         <string>entity.name.type.builtin</string>
@@ -253,17 +277,6 @@
           <string>#0099FF</string>
           <key>fontStyle</key>
           <string>bold</string>
-        </dict>
-      </dict>
-      <dict>
-        <key>name</key>
-        <string>Operator</string>
-        <key>scope</key>
-        <string>keyword.operator</string>
-        <key>settings</key>
-        <dict>
-          <key>foreground</key>
-          <string>#ffcc33</string>
         </dict>
       </dict>
       <dict>
