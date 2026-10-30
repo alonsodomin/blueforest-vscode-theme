@@ -138,6 +138,7 @@ combined ones:
 | `nixosModules.opencode`, `homeModules.opencode`             | The module of the OpenCode theme                       |
 | `homeModules.sbt`                                           | The module of the sbt prompt                           |
 | `nixosModules.neovim`, `homeModules.neovim`                 | The module of the Neovim theme                         |
+| `nixvimModules.neovim`                                       | The module of the Neovim theme, for nixvim             |
 | `checks.<system>.<app>-<check>`                             | The checks of every application                        |
 | `devShells.default`, `devShells.<app>`                     | The development shells of the repository and of every application |
 | `extensions.<system>.open-vsx.alonsodomin.blueforest-theme`  | The same shape `nix-vscode-extensions` uses            |
@@ -170,18 +171,21 @@ it:
 
 ### Checks
 
-`nix flake check` runs the fast checks. The check that builds VSCodium is only run when it is
-asked for:
+`nix flake check` runs the fast checks. The checks that build an editor — VSCodium and
+nixvim — are only run when they are asked for:
 
 ```console
-BLUEFOREST_VSCODE_INTEGRATION_CHECK=1 nix flake check --impure
+BLUEFOREST_VSCODE_INTEGRATION_CHECK=1 BLUEFOREST_NEOVIM_NIXVIM_CHECK=1 nix flake check --impure
 ```
 
-It can also be built on its own:
+They can also be built on their own:
 
 ```console
 nix build .#vscode-integration-check
+nix build .#neovim-nixvim-check
 ```
+
+The CI runs them, so that the theme is checked against the editors it is made for.
 
 The extension is built from the sources in the `modules/vscode/` directory with `vsce`, the same tool the release
 uses, so the version in `modules/vscode/package.json` is the version that gets installed. `nix flake check`
@@ -193,7 +197,9 @@ of it resolved, and the configuration of the README is evaluated against Home Ma
 where OpenCode reads it and that the settings of the terminal select it. The theme of Neovim is compared with
 `modules/neovim/themes/blueforest.lua`, and Neovim itself is run headless to see that it reads the theme and that
 every colour of it is the one the repository has; lualine is run with it as well, to see that it finds the theme of
-the statusline on its own. The prompt for sbt is checked to carry the plugin declaration and the theme selection, and
+the statusline on its own. The check of nixvim builds an editor with the theme, and runs it, to see that nixvim
+applies the colourscheme and that lualine finds the theme of the statusline there as well. The prompt for sbt is
+checked to carry the plugin declaration and the theme selection, and
 its Home Manager module is evaluated to see that it writes them where both generations of sbt read their global
 configuration, and that it writes nothing when sbt is not enabled. The
 overlay of the repository is applied to a nixpkgs instance, and the packages of every application are looked up in the
@@ -291,6 +297,34 @@ home.packages = [ pkgs.blueforest-neovim-theme ];
 
 The NixOS module only adds the overlay: Neovim reads the configuration of the user, and
 there is no system-wide directory it reads.
+
+#### The theme for Neovim in nixvim
+
+[nixvim](https://github.com/nix-community/nixvim) reads its configuration in its own module
+system, and it builds an instance of nixpkgs of its own, so the overlay of the consumer does
+not reach it. The theme is therefore installed by a module of nixvim, which is imported into
+the configuration of nixvim:
+
+```nix
+{
+  imports = [
+    nixvim.nixosModules.default   # or nixvim.homeModules.default
+  ];
+
+  programs.nixvim = {
+    imports = [ blueforest.nixvimModules.neovim ];
+    enable = true;
+  };
+}
+```
+
+The module adds the overlay of the theme to the nixpkgs of nixvim, installs the theme among
+the plugins of the editor, and selects the colourscheme. The consumer can select another
+colourscheme: the module only offers the one of the theme as the default.
+
+The pin of nixvim belongs to this repository, so that the check of the application is not at
+the mercy of the release cycle of nixvim. An application that is used on its own keeps its own
+pin of it, in `modules/neovim/flake.lock`.
 
 ### The theme for Starship
 

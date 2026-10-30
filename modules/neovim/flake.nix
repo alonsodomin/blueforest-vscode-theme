@@ -8,6 +8,10 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     devshell.url = "github:numtide/devshell";
     home-manager.url = "github:nix-community/home-manager";
+
+    # nixvim, for the check that reads the theme. The repository owns the
+    # pin of it, so that every application is checked with the same nixvim.
+    nixvim.url = "github:nix-community/nixvim";
   };
 
   outputs =

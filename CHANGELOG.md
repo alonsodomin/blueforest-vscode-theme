@@ -34,6 +34,10 @@ Every configuration of the repository shares one version, which lives in
   `blueforest-neovim-theme`. It is a plugin that carries the colourscheme of
   Neovim and the theme of lualine, and the Home Manager module adds it to the
   plugins of the editor
+- The theme for Neovim has a module for nixvim as well, which installs it among
+  the plugins of the editor and selects the colourscheme. The repository owns
+  the pin of nixvim, and the CI runs the check that builds an editor with the
+  theme
 - The theme for OpenCode has a yellow hue for the variables and the emphasis,
   and the categorical palette of the agents counts it
 - The overlay of the repository adds the packages of every application again:

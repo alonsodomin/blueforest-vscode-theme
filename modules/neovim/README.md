@@ -90,6 +90,34 @@ require("lualine").setup({
 })
 ```
 
+## The theme in nixvim
+
+[nixvim](https://github.com/nix-community/nixvim) reads its configuration in its own module
+system, and it builds an instance of nixpkgs of its own, so the overlay of the consumer does
+not reach it. The theme is therefore installed by a module of nixvim, which is imported into
+the configuration of nixvim:
+
+```nix
+{
+  imports = [
+    nixvim.nixosModules.default   # or nixvim.homeModules.default
+  ];
+
+  programs.nixvim = {
+    imports = [ blueforest.nixvimModules.neovim ];
+    enable = true;
+  };
+}
+```
+
+The module adds the overlay of the theme to the nixpkgs of nixvim, installs the theme among
+the plugins of the editor, and selects the colourscheme. The consumer can select another
+colourscheme: the module only offers the one of the theme as the default.
+
+The pin of nixvim belongs to the repository, so that the check of the application is not at the
+mercy of the release cycle of nixvim. This application, used on its own, keeps its own pin of
+it, in `flake.lock`.
+
 ## What an application directory holds
 
 Every application of this repository is self-contained, so that a consumer
@@ -117,6 +145,7 @@ neovim = {
   inputs.flake-parts.follows = "flake-parts";
   inputs.devshell.follows = "devshell";
   inputs.home-manager.follows = "home-manager";
+  inputs.nixvim.follows = "nixvim";
 };
 ```
 
@@ -140,6 +169,7 @@ applications:
 | `nixosModules.default`    | the modules of every application     |
 | `homeModules.neovim`      | the module of this application       |
 | `homeModules.default`     | the modules of every application     |
+| `nixvimModules.neovim`    | the module of this application, for nixvim |
 | `overlays.neovim`         | the overlay of this application      |
 | `packages.<system>.*`     | the packages of this application     |
 

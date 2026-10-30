@@ -10,6 +10,11 @@
     home-manager.url = "github:nix-community/home-manager";
     treefmt-nix.url = "github:numtide/treefmt-nix";
 
+    # nixvim, for the check that reads the theme of Neovim. The repository
+    # owns the pin of it, so that the check of the application is not at the
+    # mercy of the release cycle of nixvim.
+    nixvim.url = "github:nix-community/nixvim";
+
     # The applications of the repository. Every one of them is a flake of
     # its own, and the root flake composes the module it publishes.
     #
@@ -67,6 +72,7 @@
       inputs.flake-parts.follows = "flake-parts";
       inputs.devshell.follows = "devshell";
       inputs.home-manager.follows = "home-manager";
+      inputs.nixvim.follows = "nixvim";
     };
   };
 

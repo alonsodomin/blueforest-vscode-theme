@@ -36,9 +36,31 @@
         colorscheme = ./themes/blueforest.lua;
         lualine = ./themes/lualine-blueforest.lua;
       };
+
+      # The check that nixvim reads the theme. It builds an editor, so it is
+      # only run on purpose.
+      nixvimCheck = import ./nix/checks/nixvim.nix {
+        inherit pkgs;
+        nixvim = inputs.nixvim;
+        module = config.flake.nixvimModules.neovim;
+      };
     in
     {
-      packages.blueforest-neovim-theme = theme;
+      packages = {
+        blueforest-neovim-theme = theme;
+      }
+      // (
+        if builtins.getEnv "BLUEFOREST_NEOVIM_NIXVIM_CHECK" == "1" then
+          {
+            # The check that nixvim reads the theme, kept out of
+            # `nix flake check` but buildable on demand:
+            # nix build .#neovim-nixvim-check
+            neovim-nixvim-check = nixvimCheck;
+          }
+        else
+          {
+          }
+      );
 
       checks = {
         # The theme of the package is the theme of the repository, and both
@@ -69,7 +91,16 @@
           };
           overlay = config.flake.overlays.neovim;
         };
-      };
+      }
+      // (
+        if builtins.getEnv "BLUEFOREST_NEOVIM_NIXVIM_CHECK" == "1" then
+          {
+            neovim-nixvim = nixvimCheck;
+          }
+        else
+          {
+          }
+      );
 
       # The development shell of the application, declared in TOML.
       devshells.neovim = inputs.devshell.lib.importTOML ./devshell.toml;
@@ -77,6 +108,14 @@
 
   flake = {
     overlays.neovim = import ./nix/overlay.nix;
+
+    # The module of the theme for nixvim. It belongs to the configuration of
+    # nixvim, so it is imported into it:
+    #
+    #   programs.nixvim = {
+    #     imports = [ blueforest.nixvimModules.neovim ];
+    #   };
+    nixvimModules.neovim = import ./nix/nixvim.nix;
 
     # Neovim reads the configuration of the user, and there is no system-wide
     # directory it reads, so the NixOS module can do no more than adding the
