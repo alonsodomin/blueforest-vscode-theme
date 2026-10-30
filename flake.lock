@@ -73,6 +73,31 @@
         "type": "github"
       }
     },
+    "neovim": {
+      "inputs": {
+        "devshell": [
+          "devshell"
+        ],
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "home-manager": [
+          "home-manager"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./modules/neovim",
+        "type": "path"
+      },
+      "original": {
+        "path": "./modules/neovim",
+        "type": "path"
+      },
+      "parent": []
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1762156382,
@@ -180,6 +205,7 @@
         "devshell": "devshell",
         "flake-parts": "flake-parts",
         "home-manager": "home-manager",
+        "neovim": "neovim",
         "nixpkgs": "nixpkgs_3",
         "opencode": "opencode",
         "sbt": "sbt",

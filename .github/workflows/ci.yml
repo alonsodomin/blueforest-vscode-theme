@@ -24,6 +24,7 @@ jobs:
           - "./modules/starship"
           - "./modules/opencode"
           - "./modules/sbt"
+          - "./modules/neovim"
     steps:
       - uses: actions/checkout@v4
 

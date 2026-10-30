@@ -29,7 +29,7 @@ configuration lives in a directory of its own:
 | ----------- | ---------- | -------------------------- |
 | VS Code     | `modules/vscode/`   | available                  |
 | bat         | `modules/bat/`       | available                  |
-| Neovim      | `modules/neovim/`   | planned                    |
+| Neovim      | `modules/neovim/`   | available                  |
 | Starship    | `modules/starship/` | available                  |
 | OpenCode    | `modules/opencode/` | available                  |
 | sbt         | `modules/sbt/`      | available                  |
@@ -108,8 +108,8 @@ them does not have to take the others:
 }
 ```
 
-The same works for `?dir=modules/starship`, `?dir=modules/opencode` and
-`?dir=modules/sbt`; it will work for `?dir=modules/neovim` once it is written.
+The same works for `?dir=modules/starship`, `?dir=modules/opencode`,
+`?dir=modules/sbt` and `?dir=modules/neovim`.
 
 ### Outputs
 
@@ -125,16 +125,19 @@ combined ones:
 | `packages.<system>.blueforest-starship`                    | Starship with the preset bundled                       |
 | `packages.<system>.blueforest-opencode-theme`              | The theme for OpenCode                                 |
 | `packages.<system>.blueforest-sbt-prompt`                  | The prompt for sbt                                     |
+| `packages.<system>.blueforest-neovim-theme`                | The theme for Neovim                                   |
 | `overlays.default`                                          | Adds the packages of every application to a nixpkgs instance |
 | `overlays.vscode`                                           | Adds `pkgs.blueforest-vscode-theme` to a nixpkgs instance |
 | `overlays.starship`                                         | Adds `pkgs.blueforest-starship-preset` and `pkgs.blueforest-starship` to a nixpkgs instance |
 | `overlays.opencode`                                         | Adds `pkgs.blueforest-opencode-theme` to a nixpkgs instance |
 | `overlays.sbt`                                              | Adds `pkgs.blueforest-sbt-prompt` to a nixpkgs instance |
+| `overlays.neovim`                                           | Adds `pkgs.blueforest-neovim-theme` to a nixpkgs instance |
 | `nixosModules.default`, `homeModules.default`              | The modules of every application                       |
 | `nixosModules.vscode`, `homeModules.vscode`                 | The module of the VS Code theme                        |
 | `nixosModules.starship`, `homeModules.starship`             | The module of the Starship preset                      |
 | `nixosModules.opencode`, `homeModules.opencode`             | The module of the OpenCode theme                       |
 | `homeModules.sbt`                                           | The module of the sbt prompt                           |
+| `nixosModules.neovim`, `homeModules.neovim`                 | The module of the Neovim theme                         |
 | `checks.<system>.<app>-<check>`                             | The checks of every application                        |
 | `devShells.default`, `devShells.<app>`                     | The development shells of the repository and of every application |
 | `extensions.<system>.open-vsx.alonsodomin.blueforest-theme`  | The same shape `nix-vscode-extensions` uses            |
@@ -161,6 +164,9 @@ it:
 * The theme inside OpenCode is `blueforest`, the name of the file. Select it with `programs.opencode.cli.theme = { name = "blueforest"; mode = "dark"; };`.
 * The sbt package is `blueforest-sbt-prompt`. The module `blueforest.homeModules.sbt` installs it when `programs.sbt.enable = true`.
 * The prompt is the `BlueforestTheme` of the [sbt-prompt](https://github.com/alonsodomin/sbt-prompt) plugin. There is no option to select another theme: the module selects that one.
+* The Neovim package is `blueforest-neovim-theme`.
+* The theme inside Neovim is `blueforest`, the name of the file. Select it with `vim.cmd.colorscheme("blueforest")`.
+* The theme of lualine is `blueforest` as well, and lualine finds it on its own.
 
 ### Checks
 
@@ -184,9 +190,12 @@ application carries the version of the repository. The Starship preset is compar
 `modules/starship/themes/blueforest.toml` and rendered with the actual `starship` binary. The theme of OpenCode is
 compared with `modules/opencode/themes/blueforest.json`, checked to have every token OpenCode reads and every colour
 of it resolved, and the configuration of the README is evaluated against Home Manager to see that the theme ends up
-where OpenCode reads it and that the settings of the terminal select it. The prompt for sbt is checked to carry the
-plugin declaration and the theme selection, and its Home Manager module is evaluated to see that it writes them where
-both generations of sbt read their global configuration, and that it writes nothing when sbt is not enabled. The
+where OpenCode reads it and that the settings of the terminal select it. The theme of Neovim is compared with
+`modules/neovim/themes/blueforest.lua`, and Neovim itself is run headless to see that it reads the theme and that
+every colour of it is the one the repository has; lualine is run with it as well, to see that it finds the theme of
+the statusline on its own. The prompt for sbt is checked to carry the plugin declaration and the theme selection, and
+its Home Manager module is evaluated to see that it writes them where both generations of sbt read their global
+configuration, and that it writes nothing when sbt is not enabled. The
 overlay of the repository is applied to a nixpkgs instance, and the packages of every application are looked up in the
 result, the way a consumer gets them.
 
@@ -199,6 +208,7 @@ nix flake check ./modules/bat
 nix flake check ./modules/starship
 nix flake check ./modules/opencode
 nix flake check ./modules/sbt
+nix flake check ./modules/neovim
 ```
 
 ### The theme for bat
@@ -221,6 +231,66 @@ Two things are left to the user: bat itself has to be enabled (`programs.bat.ena
 and the theme has to be selected (`programs.bat.settings.theme = "BlueForest";` on NixOS,
 `programs.bat.config.theme = "BlueForest";` on Home Manager). The name of the theme is
 `BlueForest`, the name of the file.
+
+### The theme for Neovim
+
+The theme is a plugin, so it is packaged as `blueforest-neovim-theme`. It carries the
+colourscheme of Neovim and the theme of lualine, at the places both of them read them from:
+
+```
+colors/blueforest.lua
+lua/lualine/themes/blueforest.lua
+```
+
+The Home Manager module adds it to the plugins of the editor:
+
+```nix
+{
+  imports = [
+    blueforest.homeModules.neovim
+  ];
+
+  programs.neovim.enable = true;
+}
+```
+
+The module does not enable Neovim, so that the consumer decides whether the editor is
+installed at all, and it does not select the colourscheme either: that is a line of the
+configuration of the editor, and it belongs to the consumer:
+
+```lua
+vim.cmd.colorscheme("blueforest")
+```
+
+The theme of lualine needs no configuration at all: lualine looks its theme up by the name
+of the colourscheme, and both are `blueforest`. The sections of the statusline are the
+configuration of lualine, and the ones this theme was made with are:
+
+```lua
+require("lualine").setup({
+  options = {
+    theme = "blueforest",
+  },
+  sections = {
+    lualine_a = { "mode" },
+    lualine_b = { "branch", "diff" },
+    lualine_c = { "diagnostics" },
+    lualine_x = { "filename" },
+    lualine_y = { "filetype" },
+    lualine_z = { "position" },
+  },
+})
+```
+
+The package carries the theme for the consumers that wire it by hand, or that do not use
+Home Manager:
+
+```nix
+home.packages = [ pkgs.blueforest-neovim-theme ];
+```
+
+The NixOS module only adds the overlay: Neovim reads the configuration of the user, and
+there is no system-wide directory it reads.
 
 ### The theme for Starship
 
@@ -366,6 +436,7 @@ nix develop .#vscode
 nix develop .#starship
 nix develop .#opencode
 nix develop .#sbt
+nix develop .#neovim
 ```
 
 ### Releases
@@ -373,7 +444,7 @@ nix develop .#sbt
 Releases are managed by the tooling here, you can trigger a release by either running `nix run .#release -- vscode` or by simply running `release vscode` from the previously mentioned shell.
 
 The release helper takes the name of the application to release, or `all` for every application that
-has a release script (`vscode`, `starship` and `opencode`):
+has a release script (`vscode`, `starship`, `opencode` and `neovim`):
 
 ```console
 release vscode

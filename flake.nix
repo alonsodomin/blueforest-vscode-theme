@@ -59,6 +59,15 @@
       inputs.devshell.follows = "devshell";
       inputs.home-manager.follows = "home-manager";
     };
+
+    neovim = {
+      url = "path:./modules/neovim";
+
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+      inputs.devshell.follows = "devshell";
+      inputs.home-manager.follows = "home-manager";
+    };
   };
 
   outputs =
@@ -83,6 +92,7 @@
           inputs.starship.flakeModule
           inputs.opencode.flakeModule
           inputs.sbt.flakeModule
+          inputs.neovim.flakeModule
         ];
 
         systems = [
@@ -99,6 +109,7 @@
             config.flake.overlays.starship
             config.flake.overlays.opencode
             config.flake.overlays.sbt
+            config.flake.overlays.neovim
           ];
 
           flakeModules = {
@@ -107,6 +118,7 @@
             vscode = inputs.vscode.flakeModule;
             opencode = inputs.opencode.flakeModule;
             sbt = inputs.sbt.flakeModule;
+            neovim = inputs.neovim.flakeModule;
             default = {
               imports = [
                 inputs.bat.flakeModule
@@ -114,6 +126,7 @@
                 inputs.vscode.flakeModule
                 inputs.opencode.flakeModule
                 inputs.sbt.flakeModule
+                inputs.neovim.flakeModule
               ];
             };
           };
@@ -123,6 +136,7 @@
               config.flake.nixosModules.vscode
               config.flake.nixosModules.starship
               config.flake.nixosModules.opencode
+              config.flake.nixosModules.neovim
             ];
           };
 
@@ -132,6 +146,7 @@
               config.flake.homeModules.starship
               config.flake.homeModules.opencode
               config.flake.homeModules.sbt
+              config.flake.homeModules.neovim
             ];
           };
         };
@@ -166,6 +181,7 @@
                 "blueforest-starship"
                 "blueforest-opencode-theme"
                 "blueforest-sbt-prompt"
+                "blueforest-neovim-theme"
               ];
             };
           };

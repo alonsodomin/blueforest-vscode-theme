@@ -12,6 +12,19 @@
 
   programs.taplo.enable = true;
 
+  # The Lua sources of the themes. The settings are the ones of LazyVim, which
+  # the theme of Neovim is written for.
+  programs.stylua = {
+    enable = true;
+
+    settings = {
+      indent_type = "Spaces";
+      indent_width = 2;
+      column_width = 120;
+      sort_requires.enabled = true;
+    };
+  };
+
   programs.prettier = {
     enable = true;
 

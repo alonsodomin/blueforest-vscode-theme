@@ -9,6 +9,7 @@ its own changelog:
 | ----------- | ------------------------------------------ |
 | VS Code    | [modules/vscode/CHANGELOG.md](modules/vscode/CHANGELOG.md) |
 | bat        | [modules/bat/CHANGELOG.md](modules/bat/CHANGELOG.md) |
+| Neovim     | [modules/neovim/CHANGELOG.md](modules/neovim/CHANGELOG.md) |
 | Starship   | [modules/starship/CHANGELOG.md](modules/starship/CHANGELOG.md) |
 | OpenCode   | [modules/opencode/CHANGELOG.md](modules/opencode/CHANGELOG.md) |
 | sbt        | [modules/sbt/CHANGELOG.md](modules/sbt/CHANGELOG.md) |
@@ -29,6 +30,10 @@ Every configuration of the repository shares one version, which lives in
   `blueforest-sbt-prompt`. It installs the
   [sbt-prompt](https://github.com/alonsodomin/sbt-prompt) plugin and selects
   its `BlueforestTheme`, which is defined upstream
+- The BlueForest theme now includes a theme for Neovim, packaged as
+  `blueforest-neovim-theme`. It is a plugin that carries the colourscheme of
+  Neovim and the theme of lualine, and the Home Manager module adds it to the
+  plugins of the editor
 - The theme for OpenCode has a yellow hue for the variables and the emphasis,
   and the categorical palette of the agents counts it
 - The overlay of the repository adds the packages of every application again:
