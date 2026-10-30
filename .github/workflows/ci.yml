@@ -24,6 +24,7 @@ jobs:
           - "./modules/starship"
           - "./modules/opencode"
           - "./modules/sbt"
+          - "./modules/neovim"
     steps:
       - uses: actions/checkout@v4
 
@@ -32,7 +33,14 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
 
-      # Verifies that every file is formatted (nixfmt, taplo, prettier, shfmt)
-      # and that the shell script passes shellcheck.
+      # Verifies that every file is formatted (nixfmt, taplo, prettier, stylua,
+      # shfmt) and that the shell script passes shellcheck.
+      #
+      # The checks that build an editor are expensive, so they are only run
+      # on purpose. The CI runs them anyway, because they are the ones that
+      # prove that the theme is really installed.
       - name: Run flake checks
-        run: nix flake check ${{ matrix.flake }}
+        run: nix flake check --impure ${{ matrix.flake }}
+        env:
+          BLUEFOREST_VSCODE_INTEGRATION_CHECK: "1"
+          BLUEFOREST_NEOVIM_NIXVIM_CHECK: "1"

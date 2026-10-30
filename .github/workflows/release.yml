@@ -27,6 +27,11 @@ on:
         type: boolean
         required: true
         default: "false"
+      publishNeovim:
+        description: "Publish the Neovim theme"
+        type: boolean
+        required: true
+        default: "false"
       publishMS:
         description: "Publish to the Microsoft Marketplace"
         type: boolean
@@ -48,10 +53,10 @@ jobs:
   # one dispatches to them. Add a job here when an application is added, and
   # give it the workflow that releases it:
   #
-  #   neovim:
-  #     name: Neovim
-  #     if: ${{ inputs.publishNeovim == true || startsWith(github.event.release.tag_name || '', 'neovim/') }}
-  #     uses: ./.github/workflows/release-neovim.yml
+  #   <application>:
+  #     name: <Application>
+  #     if: ${{ inputs.publish<Application> == true || startsWith(github.event.release.tag_name || '', '<application>/') }}
+  #     uses: ./.github/workflows/release-<application>.yml
   #     secrets: inherit
   vscode:
     name: VS Code
@@ -80,4 +85,10 @@ jobs:
     # A GitHub release only releases the application its tag belongs to.
     if: ${{ inputs.publishOpencode == true || startsWith(github.event.release.tag_name || '', 'opencode/') }}
     uses: ./.github/workflows/release-opencode.yml
+    secrets: inherit
+  neovim:
+    name: Neovim
+    # A GitHub release only releases the application its tag belongs to.
+    if: ${{ inputs.publishNeovim == true || startsWith(github.event.release.tag_name || '', 'neovim/') }}
+    uses: ./.github/workflows/release-neovim.yml
     secrets: inherit

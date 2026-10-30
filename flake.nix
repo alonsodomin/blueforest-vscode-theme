@@ -10,6 +10,11 @@
     home-manager.url = "github:nix-community/home-manager";
     treefmt-nix.url = "github:numtide/treefmt-nix";
 
+    # nixvim, for the check that reads the theme of Neovim. The repository
+    # owns the pin of it, so that the check of the application is not at the
+    # mercy of the release cycle of nixvim.
+    nixvim.url = "github:nix-community/nixvim";
+
     # The applications of the repository. Every one of them is a flake of
     # its own, and the root flake composes the module it publishes.
     #
@@ -59,6 +64,16 @@
       inputs.devshell.follows = "devshell";
       inputs.home-manager.follows = "home-manager";
     };
+
+    neovim = {
+      url = "path:./modules/neovim";
+
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+      inputs.devshell.follows = "devshell";
+      inputs.home-manager.follows = "home-manager";
+      inputs.nixvim.follows = "nixvim";
+    };
   };
 
   outputs =
@@ -83,6 +98,7 @@
           inputs.starship.flakeModule
           inputs.opencode.flakeModule
           inputs.sbt.flakeModule
+          inputs.neovim.flakeModule
         ];
 
         systems = [
@@ -99,6 +115,7 @@
             config.flake.overlays.starship
             config.flake.overlays.opencode
             config.flake.overlays.sbt
+            config.flake.overlays.neovim
           ];
 
           flakeModules = {
@@ -107,6 +124,7 @@
             vscode = inputs.vscode.flakeModule;
             opencode = inputs.opencode.flakeModule;
             sbt = inputs.sbt.flakeModule;
+            neovim = inputs.neovim.flakeModule;
             default = {
               imports = [
                 inputs.bat.flakeModule
@@ -114,6 +132,7 @@
                 inputs.vscode.flakeModule
                 inputs.opencode.flakeModule
                 inputs.sbt.flakeModule
+                inputs.neovim.flakeModule
               ];
             };
           };
@@ -123,6 +142,7 @@
               config.flake.nixosModules.vscode
               config.flake.nixosModules.starship
               config.flake.nixosModules.opencode
+              config.flake.nixosModules.neovim
             ];
           };
 
@@ -132,6 +152,7 @@
               config.flake.homeModules.starship
               config.flake.homeModules.opencode
               config.flake.homeModules.sbt
+              config.flake.homeModules.neovim
             ];
           };
         };
@@ -166,6 +187,7 @@
                 "blueforest-starship"
                 "blueforest-opencode-theme"
                 "blueforest-sbt-prompt"
+                "blueforest-neovim-theme"
               ];
             };
           };
