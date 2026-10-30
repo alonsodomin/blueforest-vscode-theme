@@ -182,10 +182,36 @@
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs_3",
         "opencode": "opencode",
+        "sbt": "sbt",
         "starship": "starship",
         "treefmt-nix": "treefmt-nix",
         "vscode": "vscode"
       }
+    },
+    "sbt": {
+      "inputs": {
+        "devshell": [
+          "devshell"
+        ],
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "home-manager": [
+          "home-manager"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "path": "./modules/sbt",
+        "type": "path"
+      },
+      "original": {
+        "path": "./modules/sbt",
+        "type": "path"
+      },
+      "parent": []
     },
     "starship": {
       "inputs": {

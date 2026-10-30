@@ -29,14 +29,16 @@ pkgs.runCommand "blueforest-overlay-check"
     result = builtins.toJSON {
       packages = builtins.filter (name: builtins.hasAttr name overlaid) expected;
       # The overlay adds the packages of the applications, and nothing else.
-      # The Starship of nixpkgs stays as it is.
+      # The Starship and the sbt of nixpkgs stay as they are.
       starshipUntouched = overlaid.starship == base.starship;
+      sbtUntouched = overlaid.sbt == base.sbt;
     };
     expected = builtins.toJSON expected;
   }
   ''
     echo "$result" | jq -e '
       .starshipUntouched
+      and .sbtUntouched
       and (.packages | length) > 0
     ' >/dev/null
 

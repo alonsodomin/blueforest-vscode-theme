@@ -90,6 +90,7 @@ workflow_input() {
 	neovim) printf 'publishNeovim\n' ;;
 	starship) printf 'publishStarship\n' ;;
 	opencode) printf 'publishOpencode\n' ;;
+	sbt) printf 'publishSbt\n' ;;
 	*) printf 'publish%s\n' "$1" ;;
 	esac
 }
