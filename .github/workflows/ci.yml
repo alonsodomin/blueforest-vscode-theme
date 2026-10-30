@@ -23,6 +23,7 @@ jobs:
           - "./modules/bat"
           - "./modules/starship"
           - "./modules/opencode"
+          - "./modules/sbt"
     steps:
       - uses: actions/checkout@v4
 

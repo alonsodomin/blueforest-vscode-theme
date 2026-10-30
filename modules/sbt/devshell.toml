@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: MPL-2.0
+
+[devshell]
+name = "blueforest-sbt"
+# The tools to try the prompt and format the sources.
+packages = ["sbt", "nixfmt"]
+
+[[commands]]
+package = "nixfmt"
+category = "formatters"
+help = "Nix code formatter"

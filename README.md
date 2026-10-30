@@ -32,6 +32,7 @@ configuration lives in a directory of its own:
 | Neovim      | `modules/neovim/`   | planned                    |
 | Starship    | `modules/starship/` | available                  |
 | OpenCode    | `modules/opencode/` | available                  |
+| sbt         | `modules/sbt/`      | available                  |
 
 Every directory is self-contained: it holds the theme itself, the packaging of
 it, the module that installs it and its own changelog. That way a consumer can
@@ -107,7 +108,8 @@ them does not have to take the others:
 }
 ```
 
-The same works for `?dir=modules/starship`; it will work for `?dir=modules/neovim` once it is written.
+The same works for `?dir=modules/starship`, `?dir=modules/opencode` and
+`?dir=modules/sbt`; it will work for `?dir=modules/neovim` once it is written.
 
 ### Outputs
 
@@ -122,14 +124,17 @@ combined ones:
 | `packages.<system>.blueforest-starship-preset`             | The preset for Starship                                |
 | `packages.<system>.blueforest-starship`                    | Starship with the preset bundled                       |
 | `packages.<system>.blueforest-opencode-theme`              | The theme for OpenCode                                 |
+| `packages.<system>.blueforest-sbt-prompt`                  | The prompt for sbt                                     |
 | `overlays.default`                                          | Adds the packages of every application to a nixpkgs instance |
 | `overlays.vscode`                                           | Adds `pkgs.blueforest-vscode-theme` to a nixpkgs instance |
 | `overlays.starship`                                         | Adds `pkgs.blueforest-starship-preset` and `pkgs.blueforest-starship` to a nixpkgs instance |
 | `overlays.opencode`                                         | Adds `pkgs.blueforest-opencode-theme` to a nixpkgs instance |
+| `overlays.sbt`                                              | Adds `pkgs.blueforest-sbt-prompt` to a nixpkgs instance |
 | `nixosModules.default`, `homeModules.default`              | The modules of every application                       |
 | `nixosModules.vscode`, `homeModules.vscode`                 | The module of the VS Code theme                        |
 | `nixosModules.starship`, `homeModules.starship`             | The module of the Starship preset                      |
 | `nixosModules.opencode`, `homeModules.opencode`             | The module of the OpenCode theme                       |
+| `homeModules.sbt`                                           | The module of the sbt prompt                           |
 | `checks.<system>.<app>-<check>`                             | The checks of every application                        |
 | `devShells.default`, `devShells.<app>`                     | The development shells of the repository and of every application |
 | `extensions.<system>.open-vsx.alonsodomin.blueforest-theme`  | The same shape `nix-vscode-extensions` uses            |
@@ -154,6 +159,8 @@ it:
 * The Starship preset is `blueforest`. Select it with `programs.starship.presets = [ "blueforest" ];`.
 * The OpenCode package is `blueforest-opencode-theme`.
 * The theme inside OpenCode is `blueforest`, the name of the file. Select it with `programs.opencode.cli.theme = { name = "blueforest"; mode = "dark"; };`.
+* The sbt package is `blueforest-sbt-prompt`. The module `blueforest.homeModules.sbt` installs it when `programs.sbt.enable = true`.
+* The prompt is the `BlueforestTheme` of the [sbt-prompt](https://github.com/alonsodomin/sbt-prompt) plugin. There is no option to select another theme: the module selects that one.
 
 ### Checks
 
@@ -177,8 +184,11 @@ application carries the version of the repository. The Starship preset is compar
 `modules/starship/themes/blueforest.toml` and rendered with the actual `starship` binary. The theme of OpenCode is
 compared with `modules/opencode/themes/blueforest.json`, checked to have every token OpenCode reads and every colour
 of it resolved, and the configuration of the README is evaluated against Home Manager to see that the theme ends up
-where OpenCode reads it and that the settings of the terminal select it. The overlay of the repository is applied to a
-nixpkgs instance, and the packages of every application are looked up in the result, the way a consumer gets them.
+where OpenCode reads it and that the settings of the terminal select it. The prompt for sbt is checked to carry the
+plugin declaration and the theme selection, and its Home Manager module is evaluated to see that it writes them where
+both generations of sbt read their global configuration, and that it writes nothing when sbt is not enabled. The
+overlay of the repository is applied to a nixpkgs instance, and the packages of every application are looked up in the
+result, the way a consumer gets them.
 
 Every application can be checked on its own, the way a consumer that installs only one of them
 gets it:
@@ -188,6 +198,7 @@ nix flake check ./modules/vscode
 nix flake check ./modules/bat
 nix flake check ./modules/starship
 nix flake check ./modules/opencode
+nix flake check ./modules/sbt
 ```
 
 ### The theme for bat
@@ -288,6 +299,46 @@ home.packages = [ pkgs.blueforest-opencode-theme ];
 The NixOS module only adds the overlay: OpenCode reads the configuration of the user, and there is no
 system-wide directory it reads.
 
+### The prompt for sbt
+
+The prompt is the `BlueforestTheme` of the
+[sbt-prompt](https://github.com/alonsodomin/sbt-prompt) plugin, which is where the prompt and the theme are defined.
+This repository does not define the prompt: it installs the plugin and selects its theme.
+
+The Home Manager module does it, and it does nothing unless sbt is enabled:
+
+```nix
+{
+  imports = [
+    blueforest.homeModules.sbt
+  ];
+
+  programs.sbt.enable = true;
+}
+```
+
+It writes the plugin declaration and the theme selection into the global configuration of both generations of sbt,
+because a consumer may run either of them:
+
+| File | sbt 1.x | sbt 2.x |
+| --- | --- | --- |
+| Plugin | `~/.sbt/1.0/plugins/sbt-prompt.sbt` | `$XDG_CONFIG_HOME/sbt/2/plugins/sbt-prompt.sbt` |
+| Theme | `~/.sbt/1.0/blueforest-prompt.sbt` | `$XDG_CONFIG_HOME/sbt/2/blueforest-prompt.sbt` |
+
+The sbt 1 paths are relative to `programs.sbt.baseUserConfigPath` (`.sbt` by default), and the sbt 2 paths follow the
+XDG base directory specification.
+
+The package `blueforest-sbt-prompt` carries the same files for consumers that wire them by hand. Adding it to
+`home.packages` alone is not enough: Home Manager does not copy the files into the configuration of sbt. The module is
+the supported way to install them.
+
+There is no NixOS module: sbt reads the configuration of the user, and there is no system-wide directory it reads.
+
+There is nothing to release here: the prompt and its theme are provided by the upstream plugin, so this application has
+no release workflow.
+
+The prompt uses true colour and Nerd Font glyphs, so the terminal has to support both.
+
 ## Working with these sources
 
 This repository comes with a Nix flake that sets up a development shell that comes with its own help menu regarding commands available. Simply run `nix develop` at the root of this repository and you'll see the following:
@@ -314,6 +365,7 @@ The development shell of an application comes with the tools that application is
 nix develop .#vscode
 nix develop .#starship
 nix develop .#opencode
+nix develop .#sbt
 ```
 
 ### Releases

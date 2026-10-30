@@ -24,6 +24,18 @@ disclaimer of warranties is Section 5 of the CC BY 4.0 legal code, which is in
 [LICENSES/CC-BY-4.0.txt](LICENSES/CC-BY-4.0.txt); the licence itself is at
 <https://creativecommons.org/licenses/by/4.0/legalcode>.
 
+### The prompt for sbt
+
+The prompt of `modules/sbt/` is not defined in this repository. It is the
+`BlueforestTheme` of [sbt-prompt](https://github.com/alonsodomin/sbt-prompt),
+which is distributed under the [MIT licence][mit]. The files in
+`modules/sbt/config/` only declare the plugin and select that theme; they do
+not carry the prompt.
+
+The BlueForest colours of that theme are a port of BlueForest by
+[mathias[at]decodified[dot]com][author], under the same attribution as the
+other ports of this repository.
+
 ## The code
 
 The code that packages the theme — the Nix expressions, the shell scripts, the
@@ -35,6 +47,7 @@ CI workflows and the manifests — is licensed under the
 | Path | Licence |
 | --- | --- |
 | `modules/*/themes/**` | CC BY 4.0 |
+| `modules/sbt/config/**` | MPL-2.0 |
 | `assets/**` | CC BY 4.0 |
 | `*.png`, `modules/*/*.png` | CC BY 4.0 |
 | `*.md`, `modules/*/*.md` | CC BY 4.0 |
@@ -51,4 +64,5 @@ BlueForest by mathias[at]decodified[dot]com.
 [author]: https://github.com/sirthias
 [cc-by-3.0]: https://creativecommons.org/licenses/by/3.0/
 [cc-by-4.0]: https://creativecommons.org/licenses/by/4.0/
+[mit]: https://opensource.org/licenses/MIT
 [mpl-2.0]: https://mozilla.org/MPL/2.0/

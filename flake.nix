@@ -50,6 +50,15 @@
       inputs.devshell.follows = "devshell";
       inputs.home-manager.follows = "home-manager";
     };
+
+    sbt = {
+      url = "path:./modules/sbt";
+
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+      inputs.devshell.follows = "devshell";
+      inputs.home-manager.follows = "home-manager";
+    };
   };
 
   outputs =
@@ -73,6 +82,7 @@
           inputs.bat.flakeModule
           inputs.starship.flakeModule
           inputs.opencode.flakeModule
+          inputs.sbt.flakeModule
         ];
 
         systems = [
@@ -88,6 +98,7 @@
             config.flake.overlays.vscode
             config.flake.overlays.starship
             config.flake.overlays.opencode
+            config.flake.overlays.sbt
           ];
 
           flakeModules = {
@@ -95,12 +106,14 @@
             starship = inputs.starship.flakeModule;
             vscode = inputs.vscode.flakeModule;
             opencode = inputs.opencode.flakeModule;
+            sbt = inputs.sbt.flakeModule;
             default = {
               imports = [
                 inputs.bat.flakeModule
                 inputs.starship.flakeModule
                 inputs.vscode.flakeModule
                 inputs.opencode.flakeModule
+                inputs.sbt.flakeModule
               ];
             };
           };
@@ -118,6 +131,7 @@
               config.flake.homeModules.vscode
               config.flake.homeModules.starship
               config.flake.homeModules.opencode
+              config.flake.homeModules.sbt
             ];
           };
         };
@@ -151,6 +165,7 @@
                 "blueforest-starship-preset"
                 "blueforest-starship"
                 "blueforest-opencode-theme"
+                "blueforest-sbt-prompt"
               ];
             };
           };
