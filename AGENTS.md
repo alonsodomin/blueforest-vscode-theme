@@ -18,9 +18,9 @@
 ## Versions and releases
 - One shared version. `VERSION`, every `modules/*/VERSION`, and every `modules/*/package.json` must match (`tests/version.nix`). `modules/vscode` has no `VERSION` (package.json is its copy); the `neovim` placeholder `VERSION` file does exist, so include it in manual bumps.
 - Prefer the helper over hand-editing: `release vscode` from `nix develop`, or `nix run .#release -- vscode`. It is interactive, needs authenticated `gh` and network, pushes, and triggers CI; do not run it unattended.
-- The helper discovers applications from `tools/lib/*.sh`; `vscode.sh`, `starship.sh`, `opencode.sh`, and `sbt.sh` exist. `release bat` fails and `release all` currently releases only VS Code, Starship, OpenCode, and sbt. Bat versions/changelogs are edited by hand and published by `release-bat.yml`.
+- The helper discovers applications from `tools/lib/*.sh`; `vscode.sh`, `starship.sh`, and `opencode.sh` exist. `release bat` fails and `release all` currently releases only VS Code, Starship, and OpenCode. Bat versions/changelogs are edited by hand and published by `release-bat.yml`.
 - Changelogs: `modules/<app>/CHANGELOG.md`, newest section first, heading `## X.Y.Z - [DD-MM-YYYY]`. Root `CHANGELOG.md` links to the app changelogs and has an `Unreleased` section.
-- Release workflows: `.github/workflows/release.yml` dispatches to `release-<app>.yml`; tags are `vscode/<version>`, `bat/<version>`, `starship/<version>`, `opencode/<version>`, `sbt/<version>`.
+- Release workflows: `.github/workflows/release.yml` dispatches to `release-<app>.yml`; tags are `vscode/<version>`, `bat/<version>`, `starship/<version>`, `opencode/<version>`.
 
 ## Conventions and traps
 - Split licence: `modules/*/themes/**`, images, and `*.md` are CC BY 4.0; Nix, scripts, workflows, and manifests are MPL-2.0. New code/config files start with `# SPDX-License-Identifier: MPL-2.0`. `NOTICE.md` maps paths.
@@ -36,6 +36,7 @@
 - OpenCode ignores a theme it cannot read, and it ignores it silently: a missing token or a colour that does not resolve makes it fall back to the theme it ships with. The checks of the application stand in for it, because a TUI cannot be rendered in a build.
 - The root `overlays.default` composes with `lib.composeManyExtensions`, not by hand: an overlay takes `final` and `prev`, and folding them by hand loses one of the two. `tests/overlay.nix` guards the result.
 - The sbt prompt is not defined here: `modules/sbt/config/` only declares `com.github.alonsodomin:sbt-prompt` and selects `BlueforestTheme`. Keep it that way; the prompt and the palette live upstream at <https://github.com/alonsodomin/sbt-prompt>.
+- sbt has no release workflow: the prompt and its theme are provided by the upstream plugin, so there is nothing to publish here. Do not add `tools/lib/sbt.sh` or a `release-sbt.yml`.
 - The sbt Home Manager module is optionless and inert unless `programs.sbt.enable = true`. It writes `~/.sbt/1.0/plugins/sbt-prompt.sbt`, `~/.sbt/1.0/blueforest-prompt.sbt`, `$XDG_CONFIG_HOME/sbt/2/plugins/sbt-prompt.sbt`, and `$XDG_CONFIG_HOME/sbt/2/blueforest-prompt.sbt`. `home.packages = [ pkgs.blueforest-sbt-prompt ]` alone does not install them.
 - sbt 1 reads its global base from `~/.sbt/1.0`; sbt 2 uses `$XDG_CONFIG_HOME/sbt/2`. In both, `plugins/` holds plugin declarations and the base itself holds the settings that can use them.
 

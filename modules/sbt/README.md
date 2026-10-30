@@ -76,6 +76,13 @@ share/sbt/blueforest-prompt.sbt
 There is no NixOS module: sbt reads the configuration of the user, and there is
 no system-wide directory it reads.
 
+## Releasing
+
+There is nothing to release here: the prompt and its theme come from the
+[sbt-prompt](https://github.com/alonsodomin/sbt-prompt) plugin. This directory
+only carries the files that install and select them, so it has no release
+workflow of its own.
+
 ## What an application directory holds
 
 Every application of this repository is self-contained, so that a consumer can

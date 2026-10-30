@@ -334,6 +334,9 @@ the supported way to install them.
 
 There is no NixOS module: sbt reads the configuration of the user, and there is no system-wide directory it reads.
 
+There is nothing to release here: the prompt and its theme are provided by the upstream plugin, so this application has
+no release workflow.
+
 The prompt uses true colour and Nerd Font glyphs, so the terminal has to support both.
 
 ## Working with these sources
@@ -370,7 +373,7 @@ nix develop .#sbt
 Releases are managed by the tooling here, you can trigger a release by either running `nix run .#release -- vscode` or by simply running `release vscode` from the previously mentioned shell.
 
 The release helper takes the name of the application to release, or `all` for every application that
-has a release script (`vscode`, `starship`, `opencode` and `sbt`):
+has a release script (`vscode`, `starship` and `opencode`):
 
 ```console
 release vscode
