@@ -91,6 +91,7 @@ install just one of them:
 ```
 modules/sbt/
 ├── flake.nix            # the application as a flake of its own
+├── flake.lock
 ├── flake-module.nix     # the application as a flake-parts module
 ├── VERSION              # the version of the application
 ├── CHANGELOG.md         # the changes of the application

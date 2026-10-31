@@ -27,6 +27,9 @@ lib_dir="$repo_root/tools/lib"
 version_file="$repo_root/VERSION"
 workflow="release.yml"
 
+# shellcheck source=tools/lib/common.sh
+source "$lib_dir/common.sh"
+
 PUBLISH_MS=true
 PUBLISH_OVSX=true
 PUBLISH_GH=true
@@ -35,6 +38,7 @@ PUBLISH_GH=true
 applications=()
 for script in "$lib_dir"/*.sh; do
 	[ -e "$script" ] || continue
+	[ "$(basename "$script")" = "common.sh" ] && continue
 	applications+=("$(basename "$script" .sh)")
 done
 
@@ -47,6 +51,8 @@ usage() {
 	printf 'Applications: %s\n' "${applications[*]:-none}"
 }
 
+# The abort of the repository is its own: the release stops, and the exit code
+# says that nothing happened.
 abort() {
 	printf '\nAborted. Nothing has been changed.\n'
 	exit 0
@@ -58,29 +64,6 @@ skip_trigger() {
 		"$version" "$branch"
 	printf 'Start the Release workflow from the Actions tab when you are ready.\n'
 	exit 0
-}
-
-die() {
-	printf '\nError: %s\n' "$1" >&2
-	exit 1
-}
-
-require() {
-	command -v "$1" >/dev/null 2>&1 || die "missing required program: $1"
-}
-
-# MAJOR.MINOR.PATCH, no leading zeros, no pre-release suffix.
-is_semver() {
-	[[ $1 =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
-}
-
-# True when $1 is strictly greater than $2.
-version_gt() {
-	local newer="$1" older="$2"
-	if [ "$newer" = "$older" ]; then
-		return 1
-	fi
-	[ "$(printf '%s\n%s\n' "$older" "$newer" | sort -V | tail -n1)" = "$newer" ]
 }
 
 # The workflow input that selects an application.
@@ -211,6 +194,7 @@ done
 # the version of the repository.
 for app_dir in "$repo_root"/modules/*/; do
 	app=$(basename "$app_dir")
+	app_dir="${app_dir%/}"
 	app_version_file="$app_dir/VERSION"
 
 	if [ ! -f "$app_version_file" ]; then
@@ -227,43 +211,16 @@ for app_dir in "$repo_root"/modules/*/; do
 	fi
 
 	printf '\n==> %s\n\n' "$app"
-	printf 'Enter the changelog for %s, one bullet per line.\n' "$version"
-	printf 'Finish with an empty line. Press Enter alone on the first line to abort.\n'
-	printf '\n  The version of the application follows the version of the repository\n\n'
 
-	bullets=()
-	while IFS= read -r line; do
-		if [ -z "$line" ]; then
-			break
-		fi
-		bullets+=("- ${line#- }")
-	done
-
-	if [ "${#bullets[@]}" -eq 0 ]; then
-		printf '\nAborted. Nothing has been committed and nothing has been pushed.\n'
-		exit 0
-	fi
+	ask_changelog "$version" \
+		"The version of the application follows the version of the repository"
 
 	printf '%s\n' "$version" >"$app_version_file"
 
-	section=$(mktemp)
-	{
-		printf '## %s - [%s]\n\n' "$version" "$(date +%d-%m-%Y)"
-		printf '%s\n' "${bullets[@]}"
-		printf '\n'
-	} >"$section"
-
-	merged=$(mktemp)
-	awk -v sectfile="$section" '
-		/^## / && !inserted {
-			while ((getline line < sectfile) > 0) print line
-			close(sectfile)
-			inserted = 1
-		}
-		{ print }
-	' "$app_dir/CHANGELOG.md" >"$merged"
-	mv "$merged" "$app_dir/CHANGELOG.md"
-	rm -f "$section"
+	bullets_file=$(mktemp)
+	write_bullets "$bullets_file" "${bullets[@]}"
+	add_release_section "$(release_heading "$version")" "$bullets_file"
+	rm -f "$bullets_file"
 
 	git -C "$repo_root" add "modules/$app/VERSION" "modules/$app/CHANGELOG.md"
 done

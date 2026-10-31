@@ -2,8 +2,8 @@
 
 [devshell]
 name = "blueforest"
-# The tools of the repository: the ones the release needs, and the ones that
-# try out the theme of an application and format its sources.
+# The tools of the repository: the ones the release needs, the ones that try
+# out the theme of an application, and the ones that format its sources.
 packages = [
   "coreutils",
   "gawk",

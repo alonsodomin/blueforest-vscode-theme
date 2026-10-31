@@ -56,7 +56,6 @@ together with modules that make them available to your configuration.
           {
             programs.vscode = {
               enable = true;
-              package = pkgs.vscodium;
               extensions = [
                 pkgs.blueforest-vscode-theme
               ];
@@ -78,8 +77,8 @@ If you prefer to wire the overlay yourself:
 nixpkgs.overlays = [ blueforest.overlays.default ];
 ```
 
-The same module works for Home Manager as `blueforest.homeModules.default`, where the
-extension goes into the profile of the editor:
+The same module works for Home Manager as `blueforest.homeModules.default`. It only adds the
+overlay as well, so the extension goes into the profile of the editor by your own hand:
 
 ```nix
 programs.vscodium.profiles.default.extensions = [
@@ -108,8 +107,9 @@ them does not have to take the others:
 }
 ```
 
-The same works for `?dir=modules/starship`, `?dir=modules/opencode`,
-`?dir=modules/sbt` and `?dir=modules/neovim`.
+The same works for `?dir=modules/bat`, `?dir=modules/starship`, `?dir=modules/opencode`,
+`?dir=modules/sbt` and `?dir=modules/neovim`. The theme of bat is a package and nothing else,
+so it has no modules to import: take it from the outputs of the flake.
 
 ### Outputs
 
@@ -118,6 +118,7 @@ combined ones:
 
 | Output                                                     | Description                                            |
 | ---------------------------------------------------------- | ------------------------------------------------------ |
+| `packages.<system>.default`                                | The theme as a VS Code extension package               |
 | `packages.<system>.blueforest-vscode-theme`                | The theme as a VS Code extension package               |
 | `packages.<system>.vscode-integration-check`               | The check that builds VSCodium                         |
 | `packages.<system>.blueforest-bat-theme`                   | The theme for bat                                      |
@@ -126,7 +127,8 @@ combined ones:
 | `packages.<system>.blueforest-opencode-theme`              | The theme for OpenCode                                 |
 | `packages.<system>.blueforest-sbt-prompt`                  | The prompt for sbt                                     |
 | `packages.<system>.blueforest-neovim-theme`                | The theme for Neovim                                   |
-| `overlays.default`                                          | Adds the packages of every application to a nixpkgs instance |
+| `packages.<system>.neovim-nixvim-check`                    | The check that builds an editor with nixvim            |
+| `overlays.default`                                          | Adds the packages of every application that has an overlay to a nixpkgs instance. The theme of bat is a package alone, and has no overlay |
 | `overlays.vscode`                                           | Adds `pkgs.blueforest-vscode-theme` to a nixpkgs instance |
 | `overlays.starship`                                         | Adds `pkgs.blueforest-starship-preset` and `pkgs.blueforest-starship` to a nixpkgs instance |
 | `overlays.opencode`                                         | Adds `pkgs.blueforest-opencode-theme` to a nixpkgs instance |

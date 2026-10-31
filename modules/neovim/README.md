@@ -5,7 +5,7 @@ the theme is the name of the file, and `:colorscheme blueforest` loads it.
 
 The theme is `themes/lualine-blueforest.lua` as well: lualine reads a table of
 colours rather than a colourscheme, so the palette of the theme is written
-down for it a second time. The name of that theme is `blueforest` too, and
+down for it once more. The name of that theme is `blueforest` too, and
 lualine finds it on its own: the `auto` theme of lualine looks the theme up by
 the name of the colourscheme, which is `blueforest` as well.
 

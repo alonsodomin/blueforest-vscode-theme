@@ -13,13 +13,19 @@
 }:
 let
   # The nixpkgs instance the overlay is applied to.
+  #
+  # The unfree packages are allowed, because the check compares the editor of
+  # nixpkgs with the one of the consumer, and the editor of nixpkgs is
+  # unfree. Nothing unfree is built here.
   base = import pkgs.path {
     system = pkgs.stdenv.hostPlatform.system;
+    config.allowUnfree = true;
   };
 
   # The instance the consumer ends up with.
   overlaid = import pkgs.path {
     system = pkgs.stdenv.hostPlatform.system;
+    config.allowUnfree = true;
     overlays = [ overlay ];
   };
 in
@@ -29,9 +35,12 @@ pkgs.runCommand "blueforest-overlay-check"
     result = builtins.toJSON {
       packages = builtins.filter (name: builtins.hasAttr name overlaid) expected;
       # The overlay adds the packages of the applications, and nothing else.
-      # The Starship and the sbt of nixpkgs stay as they are.
+      # The programs of nixpkgs stay as they are.
       starshipUntouched = overlaid.starship == base.starship;
       sbtUntouched = overlaid.sbt == base.sbt;
+      opencodeUntouched = overlaid.opencode == base.opencode;
+      neovimUntouched = overlaid.neovim == base.neovim;
+      vscodeUntouched = overlaid.vscode == base.vscode;
     };
     expected = builtins.toJSON expected;
   }
@@ -39,6 +48,9 @@ pkgs.runCommand "blueforest-overlay-check"
     echo "$result" | jq -e '
       .starshipUntouched
       and .sbtUntouched
+      and .opencodeUntouched
+      and .neovimUntouched
+      and .vscodeUntouched
       and (.packages | length) > 0
     ' >/dev/null
 

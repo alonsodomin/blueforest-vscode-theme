@@ -34,6 +34,8 @@ pkgs.runCommand "blueforest-sbt-prompt-${version}"
     install -m644 ${../config/sbt-prompt.sbt} $out/share/sbt/plugins/sbt-prompt.sbt
     install -m644 ${../config/blueforest-prompt.sbt} $out/share/sbt/blueforest-prompt.sbt
 
-    install -m644 ${../NOTICE.md} $out/NOTICE.md
-    install -m644 ${../LICENSE} $out/LICENSE
+    # The attribution of the prompt travels with the package.
+    mkdir -p $out/share/doc/blueforest
+    install -m644 ${../NOTICE.md} $out/share/doc/blueforest/NOTICE.md
+    install -m644 ${../LICENSE} $out/share/doc/blueforest/LICENSE
   ''

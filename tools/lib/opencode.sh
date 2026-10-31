@@ -20,60 +20,15 @@ app_name="opencode"
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 app_dir="$repo_root/modules/$app_name"
 
-# --------------------------------------------------------------------------
-# helpers
-# --------------------------------------------------------------------------
-
-# The exit code of an abort. The script of the repository tells it from a
-# failure, and stops the release without committing anything.
-readonly ABORTED=2
-
-abort() {
-	printf '\nAborted. Nothing has been changed.\n'
-	exit "$ABORTED"
-}
-
-die() {
-	printf '\nError: %s\n' "$1" >&2
-	exit 1
-}
-
-require() {
-	command -v "$1" >/dev/null 2>&1 || die "missing required program: $1"
-}
-
-# MAJOR.MINOR.PATCH, no leading zeros, no pre-release suffix.
-is_semver() {
-	[[ $1 =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
-}
-
-# True when $1 is strictly greater than $2.
-version_gt() {
-	local newer="$1" older="$2"
-	if [ "$newer" = "$older" ]; then
-		return 1
-	fi
-	[ "$(printf '%s\n%s\n' "$older" "$newer" | sort -V | tail -n1)" = "$newer" ]
-}
-
-changelog_has() {
-	grep -q "^## $1 - " "$app_dir/CHANGELOG.md"
-}
-
-show_diff() {
-	printf '\nChanges to be committed:\n'
-	git -C "$repo_root" --no-pager diff --stat -- \
-		"modules/$app_name/VERSION" "modules/$app_name/CHANGELOG.md"
-	git -C "$repo_root" --no-pager diff -- \
-		"modules/$app_name/VERSION" "modules/$app_name/CHANGELOG.md"
-}
+# shellcheck source=tools/lib/common.sh
+source "$repo_root/tools/lib/common.sh"
 
 # --------------------------------------------------------------------------
 # preflight
 # --------------------------------------------------------------------------
 
 printf '\nBlueforest release: OpenCode\n'
-printf '===========================\n'
+printf '============================\n'
 
 require git
 
@@ -92,58 +47,15 @@ printf 'Local version: %s\n' "$local_version"
 # 1. version
 # --------------------------------------------------------------------------
 
-if [ -n "${BLUEFOREST_RELEASE_VERSION:-}" ]; then
-	version="$BLUEFOREST_RELEASE_VERSION"
-	is_semver "$version" || die "not a MAJOR.MINOR.PATCH version: $version"
-	if ! version_gt "$version" "$local_version"; then
-		if [ "$version" != "$local_version" ] || ! changelog_has "$version"; then
-			die "must be newer than the version in VERSION ($local_version)"
-		fi
-	fi
-else
-	while :; do
-		printf '\nEnter the next version (%s is the current one).\n' "$local_version"
-		printf 'Press Enter alone to abort: '
-		if ! IFS= read -r version; then
-			abort
-		fi
-		if [ -z "$version" ]; then
-			abort
-		fi
-		if ! is_semver "$version"; then
-			printf 'Not a MAJOR.MINOR.PATCH version: %s\n' "$version"
-			continue
-		fi
-		# Equal to VERSION is allowed so an interrupted release can be re-run.
-		if [ "$version" != "$local_version" ] && ! version_gt "$version" "$local_version"; then
-			printf 'Must be newer than the version in VERSION (%s).\n' "$local_version"
-			continue
-		fi
-		break
-	done
-fi
+ask_version
 
 # --------------------------------------------------------------------------
 # 2. changelog
 # --------------------------------------------------------------------------
 
-printf '\nEnter the changelog for %s, one bullet per line.\n' "$version"
-printf 'Finish with an empty line. Press Enter alone on the first line to abort.\n'
-printf '\n  Added the BlueForest theme for OpenCode\n'
-printf '  Fixed the colour of the syntax highlighting\n\n'
-
-bullets=()
-while IFS= read -r line; do
-	if [ -z "$line" ]; then
-		break
-	fi
-	# The bullet is written here, so a dash the user typed is dropped.
-	bullets+=("- ${line#- }")
-done
-
-if [ "${#bullets[@]}" -eq 0 ]; then
-	abort
-fi
+ask_changelog "$version" \
+	"Added the BlueForest theme for OpenCode" \
+	"Fixed the colour of the syntax highlighting"
 
 # --------------------------------------------------------------------------
 # 3. apply changes
@@ -159,26 +71,12 @@ else
 
 	printf '%s\n' "$version" >"$app_dir/VERSION"
 
-	section=$(mktemp)
-	{
-		printf '## %s - [%s]\n\n' "$version" "$(date +%d-%m-%Y)"
-		printf '%s\n' "${bullets[@]}"
-		printf '\n'
-	} >"$section"
+	bullets_file=$(mktemp)
+	write_bullets "$bullets_file" "${bullets[@]}"
+	add_release_section "$(release_heading "$version")" "$bullets_file"
+	rm -f "$bullets_file"
 
-	merged=$(mktemp)
-	awk -v sectfile="$section" '
-		/^## / && !inserted {
-			while ((getline line < sectfile) > 0) print line
-			close(sectfile)
-			inserted = 1
-		}
-		{ print }
-	' "$app_dir/CHANGELOG.md" >"$merged"
-	mv "$merged" "$app_dir/CHANGELOG.md"
-	rm -f "$section"
-
-	show_diff
+	show_diff "modules/$app_name/VERSION" "modules/$app_name/CHANGELOG.md"
 fi
 
 # --------------------------------------------------------------------------

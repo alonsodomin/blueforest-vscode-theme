@@ -59,6 +59,20 @@ Every configuration of the repository shares one version, which lives in
   application carries the version of the repository
 - The release workflow of bat checks the application before publishing it, and
   the workflows of bat and Neovim create the release when it does not exist yet
+- The changelog of an application that is not released yet carries an
+  `Unreleased` section, which the release turns into the section of the
+  release
+- The scripts of the applications share a library, so that they do not repeat
+  the version and the changelog
+- The applications pin the same nixpkgs and the same Home Manager as the
+  repository, so that the check of an application tests the same inputs as
+  the check of the repository
+- The attribution of the prompt for sbt travels with the package in
+  `share/doc/blueforest/`, where the attribution of the other themes does
+- The overlay of the repository is checked to leave the programs of nixpkgs
+  alone, the editor of nixpkgs included
+- The theme for VS Code and the theme for bat have a README of their own, like
+  the other applications
 
 ## 0.4.0 - [22-10-2026]
 
