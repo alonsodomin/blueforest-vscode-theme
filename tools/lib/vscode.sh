@@ -30,9 +30,13 @@ PUBLISHED_AT=""
 # helpers
 # --------------------------------------------------------------------------
 
+# The exit code of an abort. The script of the repository tells it from a
+# failure, and stops the release without committing anything.
+readonly ABORTED=2
+
 abort() {
 	printf '\nAborted. Nothing has been changed.\n'
-	exit 0
+	exit "$ABORTED"
 }
 
 die() {

@@ -43,6 +43,22 @@ Every configuration of the repository shares one version, which lives in
 - The overlay of the repository adds the packages of every application again:
   it was composed by hand, which lost one of the two arguments an overlay
   takes, and it did not add anything
+- The module of every application takes the inputs of that application as a
+  static argument, so that a consumer that imports it needs no `devshell`,
+  `home-manager` or `nixvim` input of its own. The packages of an application
+  are built with the nixpkgs of the consumer, and its checks with the
+  Home Manager and the nixvim of the application
+- There is one development shell for the repository instead of one per
+  application. The definition is the `devshell.toml` of the root, and it
+  carries the tools of every application
+- The check that nixvim reads the theme is a package of its own, so that
+  `nix build .#neovim-nixvim-check` works as the documentation says
+- The release helper stops the release when the user aborts, instead of
+  committing the version anyway
+- `release all` releases every application, bat included, so that every
+  application carries the version of the repository
+- The release workflow of bat checks the application before publishing it, and
+  the workflows of bat and Neovim create the release when it does not exist yet
 
 ## 0.4.0 - [22-10-2026]
 

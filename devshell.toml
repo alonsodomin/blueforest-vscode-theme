@@ -2,7 +2,8 @@
 
 [devshell]
 name = "blueforest"
-# The tools below mirror the runtimeInputs of the `release` app in flake.nix.
+# The tools of the repository: the ones the release needs, and the ones that
+# try out the theme of an application and format its sources.
 packages = [
   "coreutils",
   "gawk",
@@ -13,6 +14,14 @@ packages = [
   "jq",
   "gh",
   "tokei",
+  "nodejs_24",
+  "vsce",
+  "neovim",
+  "stylua",
+  "starship",
+  "taplo",
+  "opencode",
+  "sbt",
 ]
 
 [[commands]]
@@ -21,6 +30,20 @@ category = "utilities"
 help = "Interactive release helper"
 command = '''
   exec "${PRJ_ROOT:-.}/tools/release.sh" "$@"
+'''
+
+[[commands]]
+name = "package"
+category = "utilities"
+help = "Build the .vsix extension package"
+command = '''
+  set -euo pipefail
+  cd "${PRJ_ROOT:-.}/modules/vscode"
+  pkg="$(node -p "require('./package.json').name")"
+  ver="$(node -p "require('./package.json').version")"
+  out="${pkg}-${ver}.vsix"
+  echo "Building ${out}"
+  vsce package --out "${out}"
 '''
 
 [[commands]]

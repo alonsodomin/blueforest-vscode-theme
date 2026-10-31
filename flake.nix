@@ -27,7 +27,6 @@
       # application is built with the same nixpkgs.
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
-      inputs.devshell.follows = "devshell";
       inputs.home-manager.follows = "home-manager";
     };
 
@@ -43,7 +42,6 @@
 
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
-      inputs.devshell.follows = "devshell";
       inputs.home-manager.follows = "home-manager";
     };
 
@@ -52,7 +50,6 @@
 
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
-      inputs.devshell.follows = "devshell";
       inputs.home-manager.follows = "home-manager";
     };
 
@@ -61,7 +58,6 @@
 
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
-      inputs.devshell.follows = "devshell";
       inputs.home-manager.follows = "home-manager";
     };
 
@@ -70,7 +66,6 @@
 
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
-      inputs.devshell.follows = "devshell";
       inputs.home-manager.follows = "home-manager";
       inputs.nixvim.follows = "nixvim";
     };

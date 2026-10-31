@@ -11,7 +11,20 @@
   outputs =
     inputs@{ flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } (
-      { config, lib, ... }:
+      {
+        config,
+        lib,
+        flake-parts-lib,
+        ...
+      }:
+      let
+        inherit (flake-parts-lib) importApply;
+
+        # The module of the application. The inputs of the application are
+        # bound to it, so that it does not depend on the inputs of the flake
+        # that imports it.
+        flakeModules.default = importApply ./flake-module.nix { appInputs = inputs; };
+      in
       {
         imports = [
           # The options that the module below declares.
@@ -19,7 +32,7 @@
 
           # The module of the application, imported here and published
           # below, for the root flake.
-          ./flake-module.nix
+          flakeModules.default
         ];
 
         systems = [
@@ -28,8 +41,11 @@
           "aarch64-darwin"
         ];
 
-        # The module of the application, for the root flake.
-        flake.flakeModules.default = ./flake-module.nix;
+        flake = {
+          # The module of the application, for the root flake.
+          inherit flakeModules;
+        };
+
       }
     );
 }
