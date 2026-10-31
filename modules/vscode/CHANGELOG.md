@@ -4,7 +4,7 @@ All notable changes to the "blueforest-theme" extension will be documented in th
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 
-## 0.4.0 - [22-10-2026]
+## Unreleased
 
 - The theme moved into the `modules/vscode/` directory, and the repository now hosts
   the configurations of the theme for several tools

@@ -19,6 +19,12 @@ Every configuration of the repository shares one version, which lives in
 
 ## Unreleased
 
+- The repository holds a configuration of the theme per application, each of
+  them in a directory of its own
+- The applications are flakes of their own, which publish a module that the
+  root flake composes
+- The Home Manager modules are now called `homeModules`, the way Home Manager
+  calls them
 - The configurations of the theme are licensed under CC BY 4.0 International,
   and the code that packages them under MPL-2.0
 - The BlueForest theme now includes a Starship preset, packaged as
@@ -73,12 +79,3 @@ Every configuration of the repository shares one version, which lives in
   alone, the editor of nixpkgs included
 - The theme for VS Code and the theme for bat have a README of their own, like
   the other applications
-
-## 0.4.0 - [22-10-2026]
-
-- The repository holds a configuration of the theme per application, each of
-  them in a directory of its own
-- The applications are flakes of their own, which publish a module that the
-  root flake composes
-- The Home Manager modules are now called `homeModules`, the way Home Manager
-  calls them
