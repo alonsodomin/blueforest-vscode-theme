@@ -6,7 +6,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## 0.4.0 - [22-10-2026]
 
-- The theme moved into the `apps/vscode/` directory, and the repository now hosts
+- The theme moved into the `modules/vscode/` directory, and the repository now hosts
   the configurations of the theme for several tools
 - The application is a flake of its own, which publishes a flake-parts module
   that the root flake composes
@@ -15,8 +15,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## 0.3.2 - [28-09-2026]
 
-- - Add ID to the theme manifest
-- - Fix bad syntax errors in the theme's JSON
+- Add ID to the theme manifest
+- Fix bad syntax errors in the theme's JSON
 
 ## 0.3.1 - [13-10-2025]
 

@@ -27,6 +27,9 @@ lib_dir="$repo_root/tools/lib"
 version_file="$repo_root/VERSION"
 workflow="release.yml"
 
+# shellcheck source=tools/lib/common.sh
+source "$lib_dir/common.sh"
+
 PUBLISH_MS=true
 PUBLISH_OVSX=true
 PUBLISH_GH=true
@@ -35,6 +38,7 @@ PUBLISH_GH=true
 applications=()
 for script in "$lib_dir"/*.sh; do
 	[ -e "$script" ] || continue
+	[ "$(basename "$script")" = "common.sh" ] && continue
 	applications+=("$(basename "$script" .sh)")
 done
 
@@ -47,6 +51,8 @@ usage() {
 	printf 'Applications: %s\n' "${applications[*]:-none}"
 }
 
+# The abort of the repository is its own: the release stops, and the exit code
+# says that nothing happened.
 abort() {
 	printf '\nAborted. Nothing has been changed.\n'
 	exit 0
@@ -60,33 +66,11 @@ skip_trigger() {
 	exit 0
 }
 
-die() {
-	printf '\nError: %s\n' "$1" >&2
-	exit 1
-}
-
-require() {
-	command -v "$1" >/dev/null 2>&1 || die "missing required program: $1"
-}
-
-# MAJOR.MINOR.PATCH, no leading zeros, no pre-release suffix.
-is_semver() {
-	[[ $1 =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
-}
-
-# True when $1 is strictly greater than $2.
-version_gt() {
-	local newer="$1" older="$2"
-	if [ "$newer" = "$older" ]; then
-		return 1
-	fi
-	[ "$(printf '%s\n%s\n' "$older" "$newer" | sort -V | tail -n1)" = "$newer" ]
-}
-
 # The workflow input that selects an application.
 workflow_input() {
 	case "$1" in
 	vscode) printf 'publishVSCode\n' ;;
+	bat) printf 'publishBat\n' ;;
 	neovim) printf 'publishNeovim\n' ;;
 	starship) printf 'publishStarship\n' ;;
 	opencode) printf 'publishOpencode\n' ;;
@@ -188,7 +172,57 @@ fi
 
 for app in "${selected[@]}"; do
 	printf '\n==> %s\n\n' "$app"
-	BLUEFOREST_RELEASE_VERSION="$version" "$lib_dir/$app.sh"
+
+	# The script of the application exits with 2 when the user aborts, and
+	# with anything else than 0 when it fails.
+	status=0
+	BLUEFOREST_RELEASE_VERSION="$version" "$lib_dir/$app.sh" || status=$?
+
+	if [ "$status" -eq 2 ]; then
+		# The user aborted: the release stops here, and nothing is
+		# committed nor pushed.
+		printf '\nAborted. Nothing has been committed and nothing has been pushed.\n'
+		exit 0
+	elif [ "$status" -ne 0 ]; then
+		die "the release of $app failed"
+	fi
+done
+
+# The applications that have no release script of their own still carry the
+# version of the repository: the version of their package comes from it, and
+# the check of the repository makes sure that every application agrees with
+# the version of the repository.
+for app_dir in "$repo_root"/modules/*/; do
+	app=$(basename "$app_dir")
+	app_dir="${app_dir%/}"
+	app_version_file="$app_dir/VERSION"
+
+	if [ ! -f "$app_version_file" ]; then
+		continue
+	fi
+
+	if [ -f "$lib_dir/$app.sh" ]; then
+		# The script of the application took care of it.
+		continue
+	fi
+
+	if [ "$(cat "$app_version_file")" = "$version" ]; then
+		continue
+	fi
+
+	printf '\n==> %s\n\n' "$app"
+
+	ask_changelog "$version" \
+		"The version of the application follows the version of the repository"
+
+	printf '%s\n' "$version" >"$app_version_file"
+
+	bullets_file=$(mktemp)
+	write_bullets "$bullets_file" "${bullets[@]}"
+	add_release_section "$(release_heading "$version")" "$bullets_file"
+	rm -f "$bullets_file"
+
+	git -C "$repo_root" add "modules/$app/VERSION" "modules/$app/CHANGELOG.md"
 done
 
 # The version is shared, so it lives in one place. The applications keep a

@@ -5,6 +5,17 @@
 # The root flake imports this module through the flake of the application,
 # and the flake of the application imports it itself. Both of them therefore
 # agree on what the application provides.
+#
+# The inputs of the application. Its own flake binds them to the module and
+# passes them as a static argument, so that the module does not depend on the
+# inputs of the flake that imports it.
+#
+# The arguments of the module are the ones of the flake that imports it: the
+# `inputs` below are the inputs of that flake, so that the packages of the
+# application are built with the nixpkgs of the consumer.
+{
+  appInputs,
+}:
 {
   config,
   lib,
@@ -12,6 +23,17 @@
   ...
 }:
 {
+  # The flake module of Home Manager, which declares `flake.homeModules`. It
+  # is imported here, so that the module of the application can be composed
+  # with the others without the consumer having to import it.
+  #
+  # The Home Manager of the consumer is the one to use when it has one: the
+  # declaration of the option is then the one of the consumer, and the module
+  # system imports it only once.
+  imports = [
+    (inputs.home-manager or appInputs.home-manager).flakeModules.home-manager
+  ];
+
   perSystem =
     {
       system,
@@ -69,8 +91,6 @@
         };
       };
 
-      # The development shell of the application, declared in TOML.
-      devshells.starship = inputs.devshell.lib.importTOML ./devshell.toml;
     };
 
   flake = {

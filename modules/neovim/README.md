@@ -5,7 +5,7 @@ the theme is the name of the file, and `:colorscheme blueforest` loads it.
 
 The theme is `themes/lualine-blueforest.lua` as well: lualine reads a table of
 colours rather than a colourscheme, so the palette of the theme is written
-down for it a second time. The name of that theme is `blueforest` too, and
+down for it once more. The name of that theme is `blueforest` too, and
 lualine finds it on its own: the `auto` theme of lualine looks the theme up by
 the name of the colourscheme, which is `blueforest` as well.
 
@@ -128,7 +128,6 @@ modules/neovim/
 ├── flake.nix            # the application as a flake of its own
 ├── flake.lock
 ├── flake-module.nix     # the application as a flake-parts module
-├── devshell.toml        # the development shell of the application
 ├── VERSION              # the version of the application
 ├── CHANGELOG.md         # the changes of the application
 ├── NOTICE.md            # the attribution of the theme
@@ -143,7 +142,6 @@ neovim = {
   url = "path:./modules/neovim";
   inputs.nixpkgs.follows = "nixpkgs";
   inputs.flake-parts.follows = "flake-parts";
-  inputs.devshell.follows = "devshell";
   inputs.home-manager.follows = "home-manager";
   inputs.nixvim.follows = "nixvim";
 };
@@ -153,7 +151,6 @@ and its module is imported by the root flake:
 
 ```nix
 imports = [
-  inputs.devshell.flakeModule
   inputs.home-manager.flakeModules.home-manager
   inputs.vscode.flakeModule
   inputs.neovim.flakeModule

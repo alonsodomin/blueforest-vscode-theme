@@ -49,4 +49,14 @@
 
     excludes = [ ".envrc" ];
   };
+
+  # The scripts of the applications share a library, and the shellcheck
+  # follows the sources, so that the library is checked in the context of the
+  # scripts that use it. The sources are looked for from the root of the
+  # repository, which is where the directives of the scripts point at them.
+  settings.formatter.shellcheck.options = [
+    "-x"
+    "-P"
+    "."
+  ];
 }

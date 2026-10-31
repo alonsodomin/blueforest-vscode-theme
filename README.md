@@ -56,7 +56,6 @@ together with modules that make them available to your configuration.
           {
             programs.vscode = {
               enable = true;
-              package = pkgs.vscodium;
               extensions = [
                 pkgs.blueforest-vscode-theme
               ];
@@ -78,8 +77,8 @@ If you prefer to wire the overlay yourself:
 nixpkgs.overlays = [ blueforest.overlays.default ];
 ```
 
-The same module works for Home Manager as `blueforest.homeModules.default`, where the
-extension goes into the profile of the editor:
+The same module works for Home Manager as `blueforest.homeModules.default`. It only adds the
+overlay as well, so the extension goes into the profile of the editor by your own hand:
 
 ```nix
 programs.vscodium.profiles.default.extensions = [
@@ -108,8 +107,9 @@ them does not have to take the others:
 }
 ```
 
-The same works for `?dir=modules/starship`, `?dir=modules/opencode`,
-`?dir=modules/sbt` and `?dir=modules/neovim`.
+The same works for `?dir=modules/bat`, `?dir=modules/starship`, `?dir=modules/opencode`,
+`?dir=modules/sbt` and `?dir=modules/neovim`. The theme of bat is a package and nothing else,
+so it has no modules to import: take it from the outputs of the flake.
 
 ### Outputs
 
@@ -118,6 +118,7 @@ combined ones:
 
 | Output                                                     | Description                                            |
 | ---------------------------------------------------------- | ------------------------------------------------------ |
+| `packages.<system>.default`                                | The theme as a VS Code extension package               |
 | `packages.<system>.blueforest-vscode-theme`                | The theme as a VS Code extension package               |
 | `packages.<system>.vscode-integration-check`               | The check that builds VSCodium                         |
 | `packages.<system>.blueforest-bat-theme`                   | The theme for bat                                      |
@@ -126,7 +127,8 @@ combined ones:
 | `packages.<system>.blueforest-opencode-theme`              | The theme for OpenCode                                 |
 | `packages.<system>.blueforest-sbt-prompt`                  | The prompt for sbt                                     |
 | `packages.<system>.blueforest-neovim-theme`                | The theme for Neovim                                   |
-| `overlays.default`                                          | Adds the packages of every application to a nixpkgs instance |
+| `packages.<system>.neovim-nixvim-check`                    | The check that builds an editor with nixvim            |
+| `overlays.default`                                          | Adds the packages of every application that has an overlay to a nixpkgs instance. The theme of bat is a package alone, and has no overlay |
 | `overlays.vscode`                                           | Adds `pkgs.blueforest-vscode-theme` to a nixpkgs instance |
 | `overlays.starship`                                         | Adds `pkgs.blueforest-starship-preset` and `pkgs.blueforest-starship` to a nixpkgs instance |
 | `overlays.opencode`                                         | Adds `pkgs.blueforest-opencode-theme` to a nixpkgs instance |
@@ -140,7 +142,7 @@ combined ones:
 | `nixosModules.neovim`, `homeModules.neovim`                 | The module of the Neovim theme                         |
 | `nixvimModules.neovim`                                       | The module of the Neovim theme, for nixvim             |
 | `checks.<system>.<app>-<check>`                             | The checks of every application                        |
-| `devShells.default`, `devShells.<app>`                     | The development shells of the repository and of every application |
+| `devShells.default`                                         | The development shell of the repository                |
 | `extensions.<system>.open-vsx.alonsodomin.blueforest-theme`  | The same shape `nix-vscode-extensions` uses            |
 
 The application flake exposes the same outputs, without the ones of the other
@@ -153,6 +155,11 @@ it:
 | -------------- | ---------------------------------------------------------- |
 | `flakeModule`  | The module of the application, for the root flake          |
 | `flakeModules.default` | The same module, under the name of the convention   |
+
+The module of an application takes the inputs of that application as a static argument, so a
+consumer that imports it needs no `devshell`, `home-manager` or `nixvim` input of its own. The
+`inputs` of the module are the inputs of the consumer, so the packages of the application are
+built with the nixpkgs of the consumer.
 
 ### Identifiers
 
@@ -178,7 +185,7 @@ nixvim — are only run when they are asked for:
 BLUEFOREST_VSCODE_INTEGRATION_CHECK=1 BLUEFOREST_NEOVIM_NIXVIM_CHECK=1 nix flake check --impure
 ```
 
-They can also be built on their own:
+They can also be built on their own, as packages of their own:
 
 ```console
 nix build .#vscode-integration-check
@@ -463,22 +470,16 @@ This repository comes with a Nix flake that sets up a development shell that com
   release - Interactive release helper
 ```
 
-The development shell of an application comes with the tools that application is built with:
-
-```console
-nix develop .#vscode
-nix develop .#starship
-nix develop .#opencode
-nix develop .#sbt
-nix develop .#neovim
-```
+There is one development shell for the whole repository, and it comes with the tools of every
+application: the ones the release needs, and the ones that try out the theme of an application
+and format its sources.
 
 ### Releases
 
 Releases are managed by the tooling here, you can trigger a release by either running `nix run .#release -- vscode` or by simply running `release vscode` from the previously mentioned shell.
 
-The release helper takes the name of the application to release, or `all` for every application that
-has a release script (`vscode`, `starship`, `opencode` and `neovim`):
+The release helper takes the name of the application to release, or `all` for every application
+that has a release script (`vscode`, `bat`, `starship`, `opencode` and `neovim`):
 
 ```console
 release vscode
@@ -500,34 +501,47 @@ An application is a directory with the theme, the packaging of it and a flake of
 modules/neovim/
 ├── flake.nix            # the application as a flake of its own
 ├── flake-module.nix     # the application as a flake-parts module
-├── devshell.toml        # the development shell of the application
 ├── VERSION              # the version of the application
 ├── CHANGELOG.md         # the changes of the application
 └── ...
 ```
 
 The module of the application describes what it provides: its packages, its
-checks, its development shell, its overlay and its modules. The flake of the
-application imports it and publishes it, so that the root flake can compose it:
+checks, its overlay and its modules. The flake of the application imports it
+and publishes it, so that the root flake can compose it:
 
 ```nix
 # modules/neovim/flake.nix
 outputs =
   inputs@{ flake-parts, ... }:
   flake-parts.lib.mkFlake { inherit inputs; } (
-    { config, lib, ... }:
+    { config, lib, flake-parts-lib, ... }:
+    let
+      inherit (flake-parts-lib) importApply;
+
+      # The module of the application. The inputs of the application are
+      # bound to it, so that it does not depend on the inputs of the flake
+      # that imports it.
+      flakeModules.default = importApply ./flake-module.nix { appInputs = inputs; };
+    in
     {
       imports = [
         inputs.flake-parts.flakeModules.flakeModules
-        inputs.devshell.flakeModule
         inputs.home-manager.flakeModules.home-manager
-        ./flake-module.nix
+        flakeModules.default
       ];
 
-      flake.flakeModules.default = ./flake-module.nix;
+      flake = {
+        inherit flakeModules;
+      };
     }
   );
 ```
+
+The module takes the inputs of the application as a static argument, and the arguments of the
+flake that imports it as its own: `inputs` is the input set of the consumer, so that the packages
+of the application are built with the nixpkgs of the consumer, and the checks of the application
+use the Home Manager and the nixvim of the application.
 
 Registering it in the root flake is one input and one import, and the root flake then exposes it
 on its own and together with the other applications:
@@ -538,7 +552,6 @@ inputs = {
     url = "path:./modules/neovim";
     inputs.nixpkgs.follows = "nixpkgs";
     inputs.flake-parts.follows = "flake-parts";
-    inputs.devshell.follows = "devshell";
     inputs.home-manager.follows = "home-manager";
   };
 };

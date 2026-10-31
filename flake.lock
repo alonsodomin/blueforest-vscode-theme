@@ -96,9 +96,6 @@
     },
     "neovim": {
       "inputs": {
-        "devshell": [
-          "devshell"
-        ],
         "flake-parts": [
           "flake-parts"
         ],
@@ -236,9 +233,6 @@
     },
     "opencode": {
       "inputs": {
-        "devshell": [
-          "devshell"
-        ],
         "flake-parts": [
           "flake-parts"
         ],
@@ -277,9 +271,6 @@
     },
     "sbt": {
       "inputs": {
-        "devshell": [
-          "devshell"
-        ],
         "flake-parts": [
           "flake-parts"
         ],
@@ -302,9 +293,6 @@
     },
     "starship": {
       "inputs": {
-        "devshell": [
-          "devshell"
-        ],
         "flake-parts": [
           "flake-parts"
         ],
@@ -362,9 +350,6 @@
     },
     "vscode": {
       "inputs": {
-        "devshell": [
-          "devshell"
-        ],
         "flake-parts": [
           "flake-parts"
         ],

@@ -20,6 +20,9 @@ app_name="vscode"
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 app_dir="$repo_root/modules/$app_name"
 
+# shellcheck source=tools/lib/common.sh
+source "$repo_root/tools/lib/common.sh"
+
 OVSX_API="https://open-vsx.org/api"
 
 # Published state, filled in by fetch_published.
@@ -29,34 +32,6 @@ PUBLISHED_AT=""
 # --------------------------------------------------------------------------
 # helpers
 # --------------------------------------------------------------------------
-
-abort() {
-	printf '\nAborted. Nothing has been changed.\n'
-	exit 0
-}
-
-die() {
-	printf '\nError: %s\n' "$1" >&2
-	exit 1
-}
-
-require() {
-	command -v "$1" >/dev/null 2>&1 || die "missing required program: $1"
-}
-
-# MAJOR.MINOR.PATCH, no leading zeros, no pre-release suffix.
-is_semver() {
-	[[ $1 =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
-}
-
-# True when $1 is strictly greater than $2.
-version_gt() {
-	local newer="$1" older="$2"
-	if [ "$newer" = "$older" ]; then
-		return 1
-	fi
-	[ "$(printf '%s\n%s\n' "$older" "$newer" | sort -V | tail -n1)" = "$newer" ]
-}
 
 # Sets PUBLISHED_VERSION and PUBLISHED_AT from open-vsx.org.
 fetch_published() {
@@ -80,18 +55,6 @@ fetch_published() {
 		return 1
 		;;
 	esac
-}
-
-changelog_has() {
-	grep -q "^## $1 - " "$app_dir/CHANGELOG.md"
-}
-
-show_diff() {
-	printf '\nChanges to be committed:\n'
-	git -C "$repo_root" --no-pager diff --stat -- \
-		"modules/$app_name/package.json" "modules/$app_name/CHANGELOG.md"
-	git -C "$repo_root" --no-pager diff -- \
-		"modules/$app_name/package.json" "modules/$app_name/CHANGELOG.md"
 }
 
 # --------------------------------------------------------------------------
@@ -158,7 +121,7 @@ else
 			continue
 		fi
 		if [ -n "$PUBLISHED_VERSION" ] && ! version_gt "$version" "$PUBLISHED_VERSION"; then
-			printf 'Must be newer than the published version %s.\n' "$PUBLISHED_VERSION"
+			printf 'Must be newer than the published version (%s).\n' "$PUBLISHED_VERSION"
 			continue
 		fi
 		# Equal to package.json is allowed so an interrupted release can be re-run.
@@ -174,23 +137,9 @@ fi
 # 2. changelog
 # --------------------------------------------------------------------------
 
-printf '\nEnter the changelog for %s, one bullet per line.\n' "$version"
-printf 'Finish with an empty line. Press Enter alone on the first line to abort.\n'
-printf '\n  Improved syntax highlighting for TypeScript\n'
-printf '  Fixed bracket colour in the dark theme\n\n'
-
-bullets=()
-while IFS= read -r line; do
-	if [ -z "$line" ]; then
-		break
-	fi
-	# The bullet is written here, so a dash the user typed is dropped.
-	bullets+=("- ${line#- }")
-done
-
-if [ "${#bullets[@]}" -eq 0 ]; then
-	abort
-fi
+ask_changelog "$version" \
+	"Improved syntax highlighting for TypeScript" \
+	"Fixed bracket colour in the dark theme"
 
 # --------------------------------------------------------------------------
 # 3. apply changes
@@ -209,26 +158,12 @@ else
 		"$app_dir/package.json" >"$tmp"
 	mv "$tmp" "$app_dir/package.json"
 
-	section=$(mktemp)
-	{
-		printf '## %s - [%s]\n\n' "$version" "$(date +%d-%m-%Y)"
-		printf '%s\n' "${bullets[@]}"
-		printf '\n'
-	} >"$section"
+	bullets_file=$(mktemp)
+	write_bullets "$bullets_file" "${bullets[@]}"
+	add_release_section "$(release_heading "$version")" "$bullets_file"
+	rm -f "$bullets_file"
 
-	merged=$(mktemp)
-	awk -v sectfile="$section" '
-		/^## / && !inserted {
-			while ((getline line < sectfile) > 0) print line
-			close(sectfile)
-			inserted = 1
-		}
-		{ print }
-	' "$app_dir/CHANGELOG.md" >"$merged"
-	mv "$merged" "$app_dir/CHANGELOG.md"
-	rm -f "$section"
-
-	show_diff
+	show_diff "modules/$app_name/package.json" "modules/$app_name/CHANGELOG.md"
 fi
 
 # --------------------------------------------------------------------------

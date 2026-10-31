@@ -4,6 +4,10 @@
 #
 # The NixOS module does no more than adding the overlay: Neovim reads the
 # configuration of the user, and there is no system-wide directory it reads.
+#
+# The Home Manager module of the application is covered by the configuration
+# check, which evaluates it against Home Manager and sees the theme land where
+# Neovim reads a colourscheme from.
 {
   lib,
   pkgs,

@@ -5,7 +5,7 @@ All notable changes to the BlueForest prompt for sbt will be documented in this 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
 
-## 0.4.0 - [30-10-2026]
+## Unreleased
 
 - Initial version: the BlueForest prompt for sbt, packaged as
   `blueforest-sbt-prompt`. It installs the `sbt-prompt` plugin and selects its

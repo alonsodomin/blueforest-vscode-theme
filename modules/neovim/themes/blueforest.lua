@@ -552,7 +552,7 @@ local plugins = {
   -- at `false` (as LazyVim does), which links `BlinkCmpKind*` to `PmenuKind` and
   -- leaves the label groups with no fallback at all. So these are defined here
   -- rather than inherited. The window groups fall on groups this theme already
-  -- defines, with one exception below. See docs/programs/neovim.md.
+  -- defines, with one exception below.
   BlinkCmpLabel = { fg = palette.fg },
   BlinkCmpLabelMatch = { fg = palette.accent, bold = true },
   BlinkCmpLabelDeprecated = { fg = palette.bg_sel },

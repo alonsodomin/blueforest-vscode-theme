@@ -24,8 +24,8 @@ pkgs.runCommand "blueforest-sbt-prompt-package-check"
     grep -q 'promptTheme := BlueforestTheme' \
       ${prompt}/share/sbt/blueforest-prompt.sbt
 
-    test -f ${prompt}/NOTICE.md
-    test -f ${prompt}/LICENSE
+    test -f ${prompt}/share/doc/blueforest/NOTICE.md
+    test -f ${prompt}/share/doc/blueforest/LICENSE
 
     touch $out
   ''

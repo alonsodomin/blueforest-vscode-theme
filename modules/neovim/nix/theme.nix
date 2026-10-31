@@ -15,7 +15,7 @@ let
 
   # The runtimepath of the plugin: the colourscheme where Neovim looks for
   # it, and the theme of lualine where lualine looks for it.
-  sources = pkgs.runCommand "blueforest-neovim-theme-sources" { } ''
+  sources = pkgs.runCommand "blueforest-neovim-theme-sources-${version}" { } ''
     mkdir -p $out/colors $out/lua/lualine/themes $out/share/doc/blueforest
     cp ${../themes/blueforest.lua} $out/colors/blueforest.lua
     cp ${../themes/lualine-blueforest.lua} $out/lua/lualine/themes/blueforest.lua

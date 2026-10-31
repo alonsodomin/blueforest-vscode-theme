@@ -56,22 +56,34 @@ jobs:
         with:
           name: blueforest-neovim-theme
           path: ./blueforest-neovim-theme-*.tar.gz
-          if-no-files-found: err
+          if-no-files-found: error
 
   publishGH:
     name: Publish to GitHub releases
     runs-on: ubuntu-latest
-    needs: [package]
+    needs: [check, package]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: blueforest-neovim-theme
 
-      # The release is what triggers this workflow, so the theme is added to
-      # it instead of creating one.
-      - name: Add the theme to the release
+      # The release may already exist, for example when it was published by
+      # hand to release the theme. Only the assets are added in that case.
+      - name: Create Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.event.release.tag_name || needs.package.outputs.tag }}
+          TAG: ${{ needs.package.outputs.tag }}
+          VERSION: ${{ needs.package.outputs.version }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "The release $TAG exists already."
+          else
+            gh release create "$TAG" --title "Release $VERSION" --generate-notes
+          fi
+
+      - name: Upload assets to a Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.package.outputs.tag }}
         run: gh release upload "$TAG" ./blueforest-neovim-theme-*.tar.gz --clobber
